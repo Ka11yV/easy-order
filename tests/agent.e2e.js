@@ -14,13 +14,13 @@ class FixtureJev {
     signal?.throwIfAborted(); this.calls++;
     if (this.blockNext) { this.blockNext = false; await delay(1000, null, { signal }); }
     let answers = {};
-    if (questions.intent) {
+    if (questions.intent || questions.menu1 || questions.line) {
       answers = Object.fromEntries(Object.keys(questions).map(key => [key, key.startsWith('menu') ? 'none' : key.startsWith('quantity') || key.startsWith('temperature') || key.startsWith('shot') ? 'unspecified' : 'no']));
-      Object.assign(answers, { intent: 'add', mode: '포장', payment: 'unspecified', checkout: 'no', line: 'none', overflow: 'no',
+      Object.assign(answers, { intent: 'add', mode: '포장', payment: 'unspecified', checkout: 'no', line: 'none', item_count: '1',
         menu1: String(menu.find(item => item.name === '아메리카노').id), temperature1: 'ICE', quantity1: '2', shot1: 'unspecified' });
-      if (state.userRequest.includes('수정')) Object.assign(answers, { intent: 'edit', line: '0', quantity1: '1', mode: 'unspecified' });
+      if (state.userRequest.includes('수정')) Object.assign(answers, { intent: 'edit', line: 'line_0', quantity1: '1', mode: 'unspecified' });
       if (state.userRequest.includes('결제')) Object.assign(answers, { intent: 'checkout', payment: '카카오페이', checkout: 'yes', mode: 'unspecified' });
-      if (state.userRequest.includes('삭제')) Object.assign(answers, { intent: 'remove', line: '0', mode: 'unspecified' });
+      if (state.userRequest.includes('삭제')) Object.assign(answers, { intent: 'remove', line: 'line_0', mode: 'unspecified' });
     } else {
       const task = state.task;
       const entries = Object.entries(questions.action.criteria);
@@ -119,4 +119,25 @@ test('manual screen change invalidates a pending payment', { timeout: 45000 }, a
   assert.equal(state.status, 'error');
   assert.ok(state.history.some(event => event.code === 'STALE'));
   assert.equal((await browser.snapshot()).screen, '번호 적립');
+});
+
+test('new window clears confirmation in SSE UI; closing kiosk clears preview and ready state', { timeout: 45000 }, async t => {
+  const { chromium } = await import('playwright');
+  const { browser, post, wait, origin } = await setup(t);
+  const observerBrowser = await chromium.launch({ headless: true });
+  t.after(() => observerBrowser.close());
+  const control = await observerBrowser.newPage();
+  await post('command', { text: '아이스 아메리카노 두 잔 포장' }); assert.equal((await wait()).status, 'done');
+  await post('command', { text: '카카오페이 결제' }); assert.equal((await wait()).status, 'confirmation');
+  await control.goto(`${origin}/control`);
+  await control.getByText('모의 결제 확인', { exact: true }).waitFor();
+  await control.getByRole('button', { name: '새 주문 창', exact: true }).click();
+  await control.getByText('모의 결제 확인', { exact: true }).waitFor({ state: 'hidden' });
+  await control.getByRole('button', { name: '새 주문 창', exact: true }).waitFor();
+  assert.equal((await post('confirm')).status, 409);
+  await browser.page.close();
+  await control.getByText('키오스크 창을 열어주세요.', { exact: true }).waitFor();
+  assert.equal(await control.getByAltText('자동화 중인 키오스크 화면').count(), 0);
+  const state = await (await fetch(`${origin}/api/status`)).json();
+  assert.equal(state.browserReady, false); assert.equal(state.confirmation, null);
 });
