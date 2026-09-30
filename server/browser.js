@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { AgentError } from './jev.js';
 
 export class KioskBrowser {
-  constructor({ url, headless = false, onFrame = () => {} }) { this.url = url; this.headless = headless; this.onFrame = onFrame; }
+  constructor({ url, headless = false, onFrame = () => {}, onClosed = () => {} }) { this.url = url; this.headless = headless; this.onFrame = onFrame; this.onClosed = onClosed; }
   async start() {
     await this.close();
     this.browser = await chromium.launch({ headless: this.headless });
@@ -14,13 +14,15 @@ export class KioskBrowser {
       return url.origin === new URL(this.url).origin ? route.continue() : route.abort();
     });
     this.page = await this.context.newPage();
+    const page = this.page;
+    page.on('close', () => { if (this.page === page) { this.page = null; this.onClosed(); } });
     this.page.setDefaultTimeout(2500);
     await this.page.goto(this.url);
     await this.page.locator('.start-screen').waitFor();
     await this.frame();
   }
   get ready() { return Boolean(this.page && !this.page.isClosed()); }
-  async close() { await this.browser?.close(); this.browser = null; this.page = null; }
+  async close() { const browser = this.browser; this.browser = null; this.page = null; await browser?.close(); }
   async frame() {
     if (!this.ready) return;
     const image = await this.page.screenshot({ type: 'jpeg', quality: 65, animations: 'disabled' });
@@ -36,8 +38,8 @@ export class KioskBrowser {
       const controls = [...root.querySelectorAll('button,input')].filter(visible).map((el, i) => {
         const ref = `e${i}`;
         el.setAttribute('data-easy-ref', ref);
-        return { ref, type: el.tagName === 'INPUT' ? 'input' : 'button', name: el.getAttribute('aria-label') || el.labels?.[0]?.textContent.trim() || el.textContent.trim(),
-          context: el.closest('.cart-line')?.innerText || null, disabled: el.disabled, pressed: el.getAttribute('aria-pressed'), value: el.tagName === 'INPUT' ? (el.type === 'tel' ? '[private]' : el.value) : undefined };
+        return { ref, type: el.tagName === 'INPUT' ? 'input' : 'button', name: el.getAttribute('aria-label') || el.labels?.[0]?.textContent.trim() || (el.innerText || el.textContent).trim().replace(/\s+/g, ' '),
+          region: ['dialog', '.start-options', '.category-tabs', '.product-grid', '.search', '.cart-checkout', '.cart', '.header'].find(selector => el.closest(selector)) || 'page', context: el.closest('.cart-line')?.innerText || null, disabled: el.disabled, pressed: el.getAttribute('aria-pressed'), value: el.tagName === 'INPUT' ? (el.type === 'tel' ? '[private]' : el.value) : undefined };
       });
       const cart = [...document.querySelectorAll('.cart-line')].map(el => ({
         name: el.querySelector('h3').textContent.trim(), temperature: el.querySelector('.edit-options').textContent.includes('HOT') ? 'HOT' : 'ICE',

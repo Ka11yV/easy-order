@@ -23,9 +23,9 @@ export default function Control() {
       const event = JSON.parse(message.data);
       if (event.type === 'state') {
         setState(event); setEvents(event.history || []);
-        if (event.frameVersion) setFrame(`/api/frame?v=${event.frameVersion}`);
+        setFrame(event.frameVersion ? `/api/frame?v=${event.frameVersion}` : null);
       } else if (event.type === 'status') setState(previous => ({ ...previous, ...event }));
-      else if (event.type === 'frame') setFrame(`/api/frame?v=${event.version}`);
+      else if (event.type === 'frame') setFrame(event.version === null ? null : `/api/frame?v=${event.version}`);
       else setEvents(previous => [...previous, event].slice(-100));
     };
     return () => stream.close();
@@ -44,7 +44,7 @@ export default function Control() {
   }
   async function submit(event) {
     event.preventDefault();
-    if (busy || !text.trim()) return;
+    if (busy || !connected || !state.configured || !state.browserReady || !text.trim()) return;
     if (await request('command', { text: text.trim() })) setText('');
   }
   const lastStep = [...events].reverse().find(event => event.type === 'step');

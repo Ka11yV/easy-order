@@ -7,7 +7,7 @@ import { OrderRunner } from './runner.js';
 export function createAgentApp({ origin, client = new JevClient(), headless = false } = {}) {
   const app = express();
   const streams = new Set();
-  let frame = null, sequence = 0, active = null, opening = false;
+  let frame = null, sequence = 0, active = null, opening = false, stopping = false;
   let status = 'idle', history = [], confirmation = null;
   const allowed = new Set([new URL(origin).host, `localhost:${new URL(origin).port}`, `127.0.0.1:${new URL(origin).port}`]);
   const publish = event => {
@@ -15,7 +15,12 @@ export function createAgentApp({ origin, client = new JevClient(), headless = fa
     if (event.type !== 'frame') { history.push(data); history = history.slice(-100); }
     for (const stream of streams) stream.write(`data: ${JSON.stringify(data)}\n\n`);
   };
-  const browser = new KioskBrowser({ url: `${origin}/`, headless, onFrame: image => { frame = image; publish({ type: 'frame', version: sequence + 1 }); } });
+  const browser = new KioskBrowser({ url: `${origin}/`, headless, onClosed: () => {
+    active?.controller.abort(new AgentError('키오스크 창이 닫혔습니다.', 'CLOSED'));
+    confirmation = null; runner.pending = null; runner.clarification = null; frame = null;
+    status = 'idle'; publish({ type: 'frame', version: null });
+    publish({ type: 'status', status, busy: Boolean(active), browserReady: false, confirmation: null });
+  }, onFrame: image => { frame = image; publish({ type: 'frame', version: sequence + 1 }); } });
   const runner = new OrderRunner({ browser, client, emit: publish });
   app.use((req, res, next) => {
     if (!allowed.has(req.headers.host)) return res.status(403).json({ error: '로컬 주소에서만 사용할 수 있습니다.' });
@@ -27,7 +32,7 @@ export function createAgentApp({ origin, client = new JevClient(), headless = fa
     next();
   });
   app.use(express.json({ limit: '8kb' }));
-  const state = () => ({ configured: client.configured, browserReady: browser.ready, busy: Boolean(active) || opening, status, confirmation, history, frameVersion: frame ? sequence : null });
+  const state = () => ({ configured: client.configured, browserReady: browser.ready, busy: Boolean(active) || opening || stopping, status, confirmation, history, frameVersion: frame ? sequence : null });
   app.get('/api/status', (_req, res) => res.json(state()));
   app.get('/api/frame', (_req, res) => frame ? res.type('jpg').send(frame) : res.sendStatus(204));
   app.get('/api/events', (req, res) => {
@@ -39,15 +44,16 @@ export function createAgentApp({ origin, client = new JevClient(), headless = fa
     req.on('close', () => { clearInterval(heartbeat); streams.delete(res); });
   });
   app.post('/api/browser', async (_req, res, next) => {
-    if (active || opening) return res.status(409).json({ error: '현재 작업이 끝난 뒤 새 창을 열어주세요.' });
-    opening = true; confirmation = null; runner.pending = null; runner.clarification = null;
-    publish({ type: 'status', status: 'opening', busy: true });
+    if (active || opening || stopping) return res.status(409).json({ error: '현재 작업이 끝난 뒤 새 창을 열어주세요.' });
+    opening = true; status = 'opening'; confirmation = null; runner.pending = null; runner.clarification = null; frame = null;
+    publish({ type: 'frame', version: null });
+    publish({ type: 'status', status, busy: true, confirmation: null, browserReady: false });
     try {
       await browser.start(); status = 'idle';
       publish({ type: 'status', status, busy: false, browserReady: true });
       res.json({ ok: true });
     } catch (error) { next(error); }
-    finally { opening = false; publish({ type: 'status', status: browser.ready ? 'idle' : 'error', busy: false, browserReady: browser.ready }); }
+    finally { opening = false; status = browser.ready ? 'idle' : 'error'; publish({ type: 'status', status, busy: false, browserReady: browser.ready, confirmation: null }); }
   });
   function launch(res, task) {
     const controller = new AbortController();
@@ -72,14 +78,15 @@ export function createAgentApp({ origin, client = new JevClient(), headless = fa
           publish({ type: 'error', message: error instanceof AgentError ? error.message : '화면 조작에 실패했습니다. 현재 화면을 확인한 뒤 다시 요청해 주세요.', code: error.code || 'BROWSER' });
         }
       } finally {
-        clearTimeout(timer); active = null;
+        clearTimeout(timer);
         await browser.frame().catch(() => {});
+        active = null;
         publish({ type: 'status', status, busy: false, confirmation, browserReady: browser.ready });
       }
     })();
   }
   function ready(req, res, next) {
-    if (active || opening) return res.status(409).json({ error: '다른 요청을 처리 중입니다. 중단하거나 완료 후 입력해 주세요.' });
+    if (active || opening || stopping) return res.status(409).json({ error: '다른 요청을 처리 중입니다. 중단하거나 완료 후 입력해 주세요.' });
     if (!client.configured) return res.status(503).json({ error: '.env에 TYPESAFE_API_KEY를 설정하고 서버를 다시 시작해 주세요.' });
     if (!browser.ready) return res.status(409).json({ error: '키오스크 창을 먼저 열어주세요.' });
     next();
@@ -95,6 +102,8 @@ export function createAgentApp({ origin, client = new JevClient(), headless = fa
     launch(res, signal => runner.confirm(signal));
   });
   app.post('/api/stop', async (_req, res, next) => {
+    if (stopping || opening) return res.status(409).json({ error: '현재 중단 또는 창 열기를 처리 중입니다.' });
+    stopping = true;
     try {
       active?.controller.abort(new AgentError('사용자가 중단했습니다.', 'STOPPED'));
       confirmation = null;
@@ -103,9 +112,10 @@ export function createAgentApp({ origin, client = new JevClient(), headless = fa
       publish({ type: 'status', status, busy: Boolean(active), confirmation: null });
       res.json({ ok: true });
     } catch (error) { next(error); }
+    finally { stopping = false; }
   });
   app.post('/api/refresh', async (_req, res, next) => {
-    try { if (active || opening) return res.status(409).json({ error: '작업 중입니다.' }); await browser.frame(); res.json({ ok: true }); } catch (error) { next(error); }
+    try { if (active || opening || stopping) return res.status(409).json({ error: '작업 중입니다.' }); await browser.frame(); res.json({ ok: true }); } catch (error) { next(error); }
   });
   app.use('/api', (_req, res) => res.status(404).json({ error: '없는 API입니다.' }));
   app.use((error, _req, res, _next) => res.status(500).json({ error: error instanceof AgentError ? error.message : '서버 처리에 실패했습니다. 브라우저 설치와 실행 환경을 확인해 주세요.' }));
