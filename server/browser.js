@@ -37,7 +37,7 @@ export class KioskBrowser {
         const ref = `e${i}`;
         el.setAttribute('data-easy-ref', ref);
         return { ref, type: el.tagName === 'INPUT' ? 'input' : 'button', name: el.getAttribute('aria-label') || el.labels?.[0]?.textContent.trim() || el.textContent.trim(),
-          disabled: el.disabled, pressed: el.getAttribute('aria-pressed'), value: el.tagName === 'INPUT' ? (el.type === 'tel' ? '[private]' : el.value) : undefined };
+          context: el.closest('.cart-line')?.innerText || null, disabled: el.disabled, pressed: el.getAttribute('aria-pressed'), value: el.tagName === 'INPUT' ? (el.type === 'tel' ? '[private]' : el.value) : undefined };
       });
       const cart = [...document.querySelectorAll('.cart-line')].map(el => ({
         name: el.querySelector('h3').textContent.trim(), temperature: el.querySelector('.edit-options').textContent.includes('HOT') ? 'HOT' : 'ICE',

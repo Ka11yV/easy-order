@@ -30,7 +30,7 @@ export default function Control() {
     };
     return () => stream.close();
   }, []);
-  useEffect(() => bottom.current?.scrollIntoView({ block: 'nearest' }), [events]);
+  useEffect(() => { const pane = bottom.current?.parentElement; if (pane) pane.scrollTop = pane.scrollHeight; }, [events]);
   const busy = state.busy || sending;
   async function request(path, body = {}) {
     setError(''); setSending(true);
