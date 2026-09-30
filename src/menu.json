@@ -1,0 +1,2416 @@
+[
+  {
+    "name": "초코젤라또 말차라떼",
+    "sourceName": "초코젤라또 말차라떼",
+    "english": "Choco-gelato Matcha Tea Latte",
+    "category": "커피",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20251210155814_1765349894904_ps9wkFJ_kA.jpg",
+    "id": "drink-1",
+    "price": 3500,
+    "tone": "matcha",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-1-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-1-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20251210155814_1765349894904_ps9wkFJ_kA.jpg"
+    }
+  },
+  {
+    "name": "헛개리카노",
+    "sourceName": "(HOT)헛개리카노",
+    "english": "Oriental Raisin-Tea Americano",
+    "category": "커피",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320000737_1742396857693_ngpZI3EbLM.jpg",
+    "id": "drink-2",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-2-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-2-HOT.jpg",
+      "ICE": "/images/drinks/drink-2-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320000737_1742396857693_ngpZI3EbLM.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320000925_1742396965069_ekSqAIVc1L.jpg"
+    }
+  },
+  {
+    "name": "대용량 카페라떼",
+    "sourceName": "왕메가카페라떼",
+    "english": "BIG Caffe Latte",
+    "category": "커피",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320004326_1742399006488_yI4cvwXy6N.jpg",
+    "id": "drink-3",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-3-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-3-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320004326_1742399006488_yI4cvwXy6N.jpg"
+    }
+  },
+  {
+    "name": "대용량 헛개리카노",
+    "sourceName": "왕메가헛개리카노",
+    "english": "BIG Oriental Raisin-Tea Americano",
+    "category": "커피",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320001838_1742397518902_MCGDHqjxXi.jpg",
+    "id": "drink-4",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-4-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-4-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320001838_1742397518902_MCGDHqjxXi.jpg"
+    }
+  },
+  {
+    "name": "할미숫커피",
+    "sourceName": "할메가미숫커피",
+    "english": "Mix Coffee Blend with Grain Powder",
+    "category": "커피",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240904234012_1725460812247_PgldrBOdUW.jpg",
+    "id": "drink-5",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-5-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-5-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240904234012_1725460812247_PgldrBOdUW.jpg"
+    }
+  },
+  {
+    "name": "라이트 바닐라 아몬드라떼",
+    "sourceName": "라이트 바닐라 아몬드라떼",
+    "english": "Light vanilla almond latte",
+    "category": "커피",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240703154302_1719988982437_ZzHlEUdQwF.jpg",
+    "id": "drink-6",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-6-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-6-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240703154302_1719988982437_ZzHlEUdQwF.jpg"
+    }
+  },
+  {
+    "name": "연유라떼",
+    "sourceName": "연유라떼",
+    "english": "Condensed Milk Latte",
+    "category": "커피",
+    "temperatures": [
+      "ICE",
+      "HOT"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132459_1717993499610_KiXcTR2q5P.jpg",
+    "id": "drink-7",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-7-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-7-ICE.jpg",
+      "HOT": "/images/drinks/drink-7-HOT.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132459_1717993499610_KiXcTR2q5P.jpg",
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105712_1717984632188_Lqh27degWu.jpg"
+    }
+  },
+  {
+    "name": "믹스커피",
+    "sourceName": "할메가커피",
+    "english": "Mix Coffee",
+    "category": "커피",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610113252_1717986772176_6c36zo5yuf.jpg",
+    "id": "drink-8",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-8-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-8-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610113252_1717986772176_6c36zo5yuf.jpg"
+    }
+  },
+  {
+    "name": "대용량 믹스커피",
+    "sourceName": "왕할메가커피",
+    "english": "BIG Mix Coffee",
+    "category": "커피",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610114915_1717987755314_1rAv8UqZUm.jpg",
+    "id": "drink-9",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-9-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-9-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610114915_1717987755314_1rAv8UqZUm.jpg"
+    }
+  },
+  {
+    "name": "디카페인 헤이즐넛 아메리카노",
+    "sourceName": "디카페인 헤이즐넛 아메리카노",
+    "english": "Decaf Hazelnut Americano",
+    "category": "디카페인",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105046_1717984246492_KeavFH2VTO.jpg",
+    "id": "drink-10",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-10-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-10-HOT.jpg",
+      "ICE": "/images/drinks/drink-10-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105046_1717984246492_KeavFH2VTO.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610131835_1717993115036_XaPndW7UkR.jpg"
+    }
+  },
+  {
+    "name": "디카페인 바닐라 아메리카노",
+    "sourceName": "디카페인 바닐라 아메리카노",
+    "english": "Decaf Vanilla Americano",
+    "category": "디카페인",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610104650_1717984010944__Ck8jyuaDL.jpg",
+    "id": "drink-11",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-11-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-11-HOT.jpg",
+      "ICE": "/images/drinks/drink-11-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610104650_1717984010944__Ck8jyuaDL.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610131932_1717993172929_VUtwLd_LyN.jpg"
+    }
+  },
+  {
+    "name": "에스프레소",
+    "sourceName": "에스프레소",
+    "english": "Espresso",
+    "category": "커피",
+    "temperatures": [
+      "HOT"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105357_1717984437294_AduuhU3VyW.jpg",
+    "id": "drink-12",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-12.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-12-HOT.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105357_1717984437294_AduuhU3VyW.jpg"
+    }
+  },
+  {
+    "name": "에스프레소 도피오",
+    "sourceName": "에스프레소 도피오",
+    "english": "Espresso doppio",
+    "category": "커피",
+    "temperatures": [
+      "HOT"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105413_1717984453131_1es5v0RxH2.jpg",
+    "id": "drink-13",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-13.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-13-HOT.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105413_1717984453131_1es5v0RxH2.jpg"
+    }
+  },
+  {
+    "name": "아메리카노",
+    "sourceName": "아메리카노",
+    "english": "Americano",
+    "category": "커피",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105645_1717984605982_8i5CoHU2NV.jpg",
+    "id": "drink-14",
+    "price": 2000,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-14-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-14-HOT.jpg",
+      "ICE": "/images/drinks/drink-14-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105645_1717984605982_8i5CoHU2NV.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610133007_1717993807130_nwB5CATOJJ.jpg"
+    }
+  },
+  {
+    "name": "대용량 아메리카노",
+    "sourceName": "메가리카노",
+    "english": "32oz Americano",
+    "category": "커피",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132223_1717993343456_4KESgpG57t.jpg",
+    "id": "drink-15",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-15-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-15-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132223_1717993343456_4KESgpG57t.jpg"
+    }
+  },
+  {
+    "name": "꿀아메리카노",
+    "sourceName": "꿀아메리카노",
+    "english": "Honey Americano",
+    "category": "커피",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610104349_1717983829122_YzOyiQAOOg.jpg",
+    "id": "drink-16",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-16-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-16-HOT.jpg",
+      "ICE": "/images/drinks/drink-16-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610104349_1717983829122_YzOyiQAOOg.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610133054_1717993854434_bTty_9u3br.jpg"
+    }
+  },
+  {
+    "name": "바닐라라떼",
+    "sourceName": "바닐라라떼",
+    "english": "Vanilla Latte",
+    "category": "커피",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610104603_1717983963750_lApih2z1h0.jpg",
+    "id": "drink-17",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-17-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-17-HOT.jpg",
+      "ICE": "/images/drinks/drink-17-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610104603_1717983963750_lApih2z1h0.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132249_1717993369864_VIG6IR2byt.jpg"
+    }
+  },
+  {
+    "name": "바닐라아메리카노",
+    "sourceName": "바닐라아메리카노",
+    "english": "Vanilla Americano",
+    "category": "커피",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610104740_1717984060714__tk3s9Kb_s.jpg",
+    "id": "drink-18",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-18-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-18-HOT.jpg",
+      "ICE": "/images/drinks/drink-18-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610104740_1717984060714__tk3s9Kb_s.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610133038_1717993838652__Ax_Xwuz6T.jpg"
+    }
+  },
+  {
+    "name": "카라멜마끼아또",
+    "sourceName": "카라멜마끼아또",
+    "english": "Caramel Macchiato",
+    "category": "커피",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105805_1717984685954_T1qos0ocDV.jpg",
+    "id": "drink-19",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-19-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-19-HOT.jpg",
+      "ICE": "/images/drinks/drink-19-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105805_1717984685954_T1qos0ocDV.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132714_1717993634339_dshEGyCDsC.jpg"
+    }
+  },
+  {
+    "name": "카페라떼",
+    "sourceName": "카페라떼",
+    "english": "Caffe Latte",
+    "category": "커피",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105821_1717984701991_RUKCqSZ_HO.jpg",
+    "id": "drink-20",
+    "price": 3000,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-20-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-20-HOT.jpg",
+      "ICE": "/images/drinks/drink-20-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105821_1717984701991_RUKCqSZ_HO.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132819_1717993699956_cEyZRaBZh5.jpg"
+    }
+  },
+  {
+    "name": "카페모카",
+    "sourceName": "카페모카",
+    "english": "Caffe Mocha",
+    "category": "커피",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105838_1717984718108_ZB6aalHqIU.jpg",
+    "id": "drink-21",
+    "price": 3500,
+    "tone": "chocolate",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-21-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-21-HOT.jpg",
+      "ICE": "/images/drinks/drink-21-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105838_1717984718108_ZB6aalHqIU.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132727_1717993647297_GiQ8g7jOCk.jpg"
+    }
+  },
+  {
+    "name": "카푸치노",
+    "sourceName": "카푸치노",
+    "english": "Cappuccino",
+    "category": "커피",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105852_1717984732750_WEt0KXVcnQ.jpg",
+    "id": "drink-22",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-22-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-22-HOT.jpg",
+      "ICE": "/images/drinks/drink-22-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105852_1717984732750_WEt0KXVcnQ.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132739_1717993659672_JFeCQ5qV53.jpg"
+    }
+  },
+  {
+    "name": "콜드브루라떼",
+    "sourceName": "콜드브루라떼",
+    "english": "Coldbrew Latte",
+    "category": "커피",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105923_1717984763591_cKSGllWUzt.jpg",
+    "id": "drink-23",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-23-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-23-HOT.jpg",
+      "ICE": "/images/drinks/drink-23-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105923_1717984763591_cKSGllWUzt.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132935_1717993775051_eflW8NpTDq.jpg"
+    }
+  },
+  {
+    "name": "콜드브루오리지널",
+    "sourceName": "콜드브루오리지널",
+    "english": "Coldbrew",
+    "category": "커피",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105941_1717984781078_rdCUXhwycL.jpg",
+    "id": "drink-24",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-24-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-24-HOT.jpg",
+      "ICE": "/images/drinks/drink-24-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105941_1717984781078_rdCUXhwycL.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132948_1717993788811_j_eYzA1Esd.jpg"
+    }
+  },
+  {
+    "name": "헤이즐넛라떼",
+    "sourceName": "헤이즐넛라떼",
+    "english": "Hazelnut Latte",
+    "category": "커피",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610110117_1717984877061_sLiVRNPq6J.jpg",
+    "id": "drink-25",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-25-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-25-HOT.jpg",
+      "ICE": "/images/drinks/drink-25-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610110117_1717984877061_sLiVRNPq6J.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240430104100_1714441260123_buRoeWVyce.jpg"
+    }
+  },
+  {
+    "name": "헤이즐넛아메리카노",
+    "sourceName": "헤이즐넛아메리카노",
+    "english": "Hazelnut Americano",
+    "category": "커피",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610110133_1717984893137_AqJAuHaq0t.jpg",
+    "id": "drink-26",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-26-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-26-HOT.jpg",
+      "ICE": "/images/drinks/drink-26-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610110133_1717984893137_AqJAuHaq0t.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610133023_1717993823204_vNvExvVODX.jpg"
+    }
+  },
+  {
+    "name": "큐브라떼",
+    "sourceName": "큐브라떼",
+    "english": "Cube Latte",
+    "category": "커피",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132523_1717993523193_4mNdkfnxvz.jpg",
+    "id": "drink-27",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "깊은 풍미의 커피로 채우는 기분 좋은 한 잔",
+    "image": "/images/drinks/drink-27-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-27-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132523_1717993523193_4mNdkfnxvz.jpg"
+    }
+  },
+  {
+    "name": "제로 레몬말차 아이스티",
+    "sourceName": "제로 레몬말차 아이스티",
+    "english": "Zero Lemon Matcha Iced Tea",
+    "category": "티",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20260429173244_1777451564019_W1OpjQHJz4.png",
+    "id": "drink-28",
+    "price": 3500,
+    "tone": "matcha",
+    "description": "차분한 순간을 위한 향긋한 티 한 잔",
+    "image": "/images/drinks/drink-28-ICE.png",
+    "images": {
+      "ICE": "/images/drinks/drink-28-ICE.png"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20260429173244_1777451564019_W1OpjQHJz4.png"
+    }
+  },
+  {
+    "name": "유자생강차",
+    "sourceName": "유자생강차",
+    "english": "Citron Ginger Tea",
+    "category": "티",
+    "temperatures": [
+      "HOT"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20251106022624_1762363584516_gmIV9uXczk.png",
+    "id": "drink-29",
+    "price": 3500,
+    "tone": "citrus",
+    "description": "차분한 순간을 위한 향긋한 티 한 잔",
+    "image": "/images/drinks/drink-29.png",
+    "images": {
+      "HOT": "/images/drinks/drink-29-HOT.png"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20251106022624_1762363584516_gmIV9uXczk.png"
+    }
+  },
+  {
+    "name": "대용량 사과유자",
+    "sourceName": "왕메가사과유자",
+    "english": "BIG Apple Citron Tea",
+    "category": "티",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320004730_1742399250273_UPT0oK5fSb.jpg",
+    "id": "drink-30",
+    "price": 3500,
+    "tone": "citrus",
+    "description": "차분한 순간을 위한 향긋한 티 한 잔",
+    "image": "/images/drinks/drink-30-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-30-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320004730_1742399250273_UPT0oK5fSb.jpg"
+    }
+  },
+  {
+    "name": "상큼 리치티",
+    "sourceName": "(HOT)상큼 리치티",
+    "english": "(HOT) Zesty Lychee Tea",
+    "category": "티",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20241106234009_1730904009276_fu30eMash6.jpg",
+    "id": "drink-31",
+    "price": 3500,
+    "tone": "tea",
+    "description": "차분한 순간을 위한 향긋한 티 한 잔",
+    "image": "/images/drinks/drink-31-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-31-HOT.jpg",
+      "ICE": "/images/drinks/drink-31-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20241106234009_1730904009276_fu30eMash6.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20241106234210_1730904130583_8wBT7nkLrL.jpg"
+    }
+  },
+  {
+    "name": "대용량 아이스티",
+    "sourceName": "왕메가아이스티",
+    "english": "32oz Peach Iced Tea",
+    "category": "티",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610113625_1717986985834_J_PTjRFq7P.jpg",
+    "id": "drink-32",
+    "price": 3500,
+    "tone": "tea",
+    "description": "차분한 순간을 위한 향긋한 티 한 잔",
+    "image": "/images/drinks/drink-32-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-32-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610113625_1717986985834_J_PTjRFq7P.jpg"
+    }
+  },
+  {
+    "name": "제로 복숭아 아이스티",
+    "sourceName": "제로 복숭아 아이스티",
+    "english": "ZERO Sugar Peach Iced Tea",
+    "category": "티",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610113548_1717986948917_wK8B5fR4h5.jpg",
+    "id": "drink-33",
+    "price": 3500,
+    "tone": "tea",
+    "description": "차분한 순간을 위한 향긋한 티 한 잔",
+    "image": "/images/drinks/drink-33-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-33-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610113548_1717986948917_wK8B5fR4h5.jpg"
+    }
+  },
+  {
+    "name": "녹차",
+    "sourceName": "녹차",
+    "english": "Green Tea",
+    "category": "티",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610104441_1717983881331_6kaOJy5ayw.jpg",
+    "id": "drink-34",
+    "price": 3500,
+    "tone": "matcha",
+    "description": "차분한 순간을 위한 향긋한 티 한 잔",
+    "image": "/images/drinks/drink-34-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-34-HOT.jpg",
+      "ICE": "/images/drinks/drink-34-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610104441_1717983881331_6kaOJy5ayw.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610112857_1717986537987_H1q4z1rnt2.jpg"
+    }
+  },
+  {
+    "name": "사과유자차",
+    "sourceName": "사과유자차",
+    "english": "Applecitron Tea",
+    "category": "티",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105629_1717984589552_V9ta2Qw90q.jpg",
+    "id": "drink-35",
+    "price": 3500,
+    "tone": "citrus",
+    "description": "차분한 순간을 위한 향긋한 티 한 잔",
+    "image": "/images/drinks/drink-35-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-35-HOT.jpg",
+      "ICE": "/images/drinks/drink-35-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105629_1717984589552_V9ta2Qw90q.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132332_1717993412234_5kkTR1DkNH.jpg"
+    }
+  },
+  {
+    "name": "얼그레이",
+    "sourceName": "얼그레이",
+    "english": "Earl Grey",
+    "category": "티",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105659_1717984619283_Ssc082a5GK.jpg",
+    "id": "drink-36",
+    "price": 3500,
+    "tone": "tea",
+    "description": "차분한 순간을 위한 향긋한 티 한 잔",
+    "image": "/images/drinks/drink-36-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-36-HOT.jpg",
+      "ICE": "/images/drinks/drink-36-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105659_1717984619283_Ssc082a5GK.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132511_1717993511025_ChoqheNJQf.jpg"
+    }
+  },
+  {
+    "name": "캐모마일",
+    "sourceName": "캐모마일",
+    "english": "Chamomile",
+    "category": "티",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105908_1717984748214_qc34s7Vkq5.jpg",
+    "id": "drink-37",
+    "price": 3500,
+    "tone": "tea",
+    "description": "차분한 순간을 위한 향긋한 티 한 잔",
+    "image": "/images/drinks/drink-37-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-37-HOT.jpg",
+      "ICE": "/images/drinks/drink-37-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105908_1717984748214_qc34s7Vkq5.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132753_1717993673758__j_omi1oWY.jpg"
+    }
+  },
+  {
+    "name": "페퍼민트",
+    "sourceName": "페퍼민트",
+    "english": "Peppermint Tea",
+    "category": "티",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610110026_1717984826888_gfP6LsxEV3.jpg",
+    "id": "drink-38",
+    "price": 3500,
+    "tone": "tea",
+    "description": "차분한 순간을 위한 향긋한 티 한 잔",
+    "image": "/images/drinks/drink-38-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-38-HOT.jpg",
+      "ICE": "/images/drinks/drink-38-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610110026_1717984826888_gfP6LsxEV3.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610115138_1717987898720_OdAWvoBqNh.jpg"
+    }
+  },
+  {
+    "name": "복숭아아이스티",
+    "sourceName": "복숭아아이스티",
+    "english": "Peach Iced Tea",
+    "category": "티",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132446_1717993486995_hvfli27vPn.jpg",
+    "id": "drink-39",
+    "price": 3500,
+    "tone": "tea",
+    "description": "차분한 순간을 위한 향긋한 티 한 잔",
+    "image": "/images/drinks/drink-39-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-39-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132446_1717993486995_hvfli27vPn.jpg"
+    }
+  },
+  {
+    "name": "유자차",
+    "sourceName": "유자차",
+    "english": "Citron Tea",
+    "category": "티",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105725_1717984645282_YfXeYsJzVV.jpg",
+    "id": "drink-40",
+    "price": 3500,
+    "tone": "citrus",
+    "description": "차분한 순간을 위한 향긋한 티 한 잔",
+    "image": "/images/drinks/drink-40-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-40-HOT.jpg",
+      "ICE": "/images/drinks/drink-40-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105725_1717984645282_YfXeYsJzVV.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610115050_1717987850728_2zPgDAyVmu.jpg"
+    }
+  },
+  {
+    "name": "레몬차",
+    "sourceName": "레몬차",
+    "english": "Lemon Tea",
+    "category": "티",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105600_1717984560889__UGBqFya7F.jpg",
+    "id": "drink-41",
+    "price": 3500,
+    "tone": "citrus",
+    "description": "차분한 순간을 위한 향긋한 티 한 잔",
+    "image": "/images/drinks/drink-41-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-41-HOT.jpg",
+      "ICE": "/images/drinks/drink-41-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105600_1717984560889__UGBqFya7F.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610114530_1717987530809_R6DsXnSZN_.jpg"
+    }
+  },
+  {
+    "name": "자몽차",
+    "sourceName": "자몽차",
+    "english": "Grapefruit Tea",
+    "category": "티",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105747_1717984667913_eDh3AjWACb.jpg",
+    "id": "drink-42",
+    "price": 3500,
+    "tone": "berry",
+    "description": "차분한 순간을 위한 향긋한 티 한 잔",
+    "image": "/images/drinks/drink-42-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-42-HOT.jpg",
+      "ICE": "/images/drinks/drink-42-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105747_1717984667913_eDh3AjWACb.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132550_1717993550755_D158pZtb1K.jpg"
+    }
+  },
+  {
+    "name": "허니자몽블랙티",
+    "sourceName": "허니자몽블랙티",
+    "english": "Honey Grapefruit Black Tea",
+    "category": "티",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610110100_1717984860663_v7Af5f77sc.jpg",
+    "id": "drink-43",
+    "price": 3500,
+    "tone": "berry",
+    "description": "차분한 순간을 위한 향긋한 티 한 잔",
+    "image": "/images/drinks/drink-43-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-43-HOT.jpg",
+      "ICE": "/images/drinks/drink-43-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610110100_1717984860663_v7Af5f77sc.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610113215_1717986735582_1qL_k3FLJ6.jpg"
+    }
+  },
+  {
+    "name": "저당 꿀배 XO야쿠르트",
+    "sourceName": "저당 꿀배 XO야쿠르트",
+    "english": "XO",
+    "category": "에이드·주스",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20260401192153_1775038913170_2UFRSEFHv0.png",
+    "id": "drink-44",
+    "price": 4500,
+    "tone": "milk",
+    "description": "과일의 산뜻함을 가득 담은 상큼한 한 잔",
+    "image": "/images/drinks/drink-44-ICE.png",
+    "images": {
+      "ICE": "/images/drinks/drink-44-ICE.png"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20260401192153_1775038913170_2UFRSEFHv0.png"
+    }
+  },
+  {
+    "name": "제로 부스트 에이드",
+    "sourceName": "제로 부스트 에이드",
+    "english": "ZERO SUGAR Energy-Drink Ade",
+    "category": "에이드·주스",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320002931_1742398171188_QX5SewCVs4.jpg",
+    "id": "drink-45",
+    "price": 4500,
+    "tone": "milk",
+    "description": "과일의 산뜻함을 가득 담은 상큼한 한 잔",
+    "image": "/images/drinks/drink-45-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-45-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320002931_1742398171188_QX5SewCVs4.jpg"
+    }
+  },
+  {
+    "name": "블루베리플럼주스",
+    "sourceName": "블루베리플럼주스",
+    "english": "Blueberry Plum Juice",
+    "category": "에이드·주스",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320003308_1742398388471_NLtoviExwY.jpg",
+    "id": "drink-46",
+    "price": 4500,
+    "tone": "berry",
+    "description": "과일의 산뜻함을 가득 담은 상큼한 한 잔",
+    "image": "/images/drinks/drink-46-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-46-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320003308_1742398388471_NLtoviExwY.jpg"
+    }
+  },
+  {
+    "name": "골드키위주스",
+    "sourceName": "골드키위주스",
+    "english": "Gold Kiwi Juice",
+    "category": "에이드·주스",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320003451_1742398491079_wWQva965Sn.jpg",
+    "id": "drink-47",
+    "price": 4500,
+    "tone": "milk",
+    "description": "과일의 산뜻함을 가득 담은 상큼한 한 잔",
+    "image": "/images/drinks/drink-47-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-47-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320003451_1742398491079_wWQva965Sn.jpg"
+    }
+  },
+  {
+    "name": "딸기주스",
+    "sourceName": "딸기주스",
+    "english": "Strawberry Juice",
+    "category": "에이드·주스",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610114741_1717987661472_LqJw6WITHO.jpg",
+    "id": "drink-48",
+    "price": 4500,
+    "tone": "berry",
+    "description": "과일의 산뜻함을 가득 담은 상큼한 한 잔",
+    "image": "/images/drinks/drink-48-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-48-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610114741_1717987661472_LqJw6WITHO.jpg"
+    }
+  },
+  {
+    "name": "딸기바나나주스",
+    "sourceName": "딸기바나나주스",
+    "english": "Strawberry-Banana Juice",
+    "category": "에이드·주스",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610114817_1717987697259_APSvRawmJi.jpg",
+    "id": "drink-49",
+    "price": 4500,
+    "tone": "berry",
+    "description": "과일의 산뜻함을 가득 담은 상큼한 한 잔",
+    "image": "/images/drinks/drink-49-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-49-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610114817_1717987697259_APSvRawmJi.jpg"
+    }
+  },
+  {
+    "name": "라임모히또",
+    "sourceName": "라임모히또",
+    "english": "Lime Mojito",
+    "category": "에이드·주스",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132145_1717993305587_JyUa7vPj3s.jpg",
+    "id": "drink-50",
+    "price": 4500,
+    "tone": "milk",
+    "description": "과일의 산뜻함을 가득 담은 상큼한 한 잔",
+    "image": "/images/drinks/drink-50-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-50-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132145_1717993305587_JyUa7vPj3s.jpg"
+    }
+  },
+  {
+    "name": "레몬에이드",
+    "sourceName": "레몬에이드",
+    "english": "Lemonade",
+    "category": "에이드·주스",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610114557_1717987557279_GKXThr0HAc.jpg",
+    "id": "drink-51",
+    "price": 4500,
+    "tone": "citrus",
+    "description": "과일의 산뜻함을 가득 담은 상큼한 한 잔",
+    "image": "/images/drinks/drink-51-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-51-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610114557_1717987557279_GKXThr0HAc.jpg"
+    }
+  },
+  {
+    "name": "블루레몬에이드",
+    "sourceName": "블루레몬에이드",
+    "english": "Blue Lemon Ade",
+    "category": "에이드·주스",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132302_1717993382502_3JianCydlm.jpg",
+    "id": "drink-52",
+    "price": 4500,
+    "tone": "citrus",
+    "description": "과일의 산뜻함을 가득 담은 상큼한 한 잔",
+    "image": "/images/drinks/drink-52-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-52-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132302_1717993382502_3JianCydlm.jpg"
+    }
+  },
+  {
+    "name": "자몽에이드",
+    "sourceName": "자몽에이드",
+    "english": "Grapefruit Ade",
+    "category": "에이드·주스",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20260318150836_1773814116733_8c9H4Rw3gH.png",
+    "id": "drink-53",
+    "price": 4500,
+    "tone": "berry",
+    "description": "과일의 산뜻함을 가득 담은 상큼한 한 잔",
+    "image": "/images/drinks/drink-53-ICE.png",
+    "images": {
+      "ICE": "/images/drinks/drink-53-ICE.png"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20260318150836_1773814116733_8c9H4Rw3gH.png"
+    }
+  },
+  {
+    "name": "청포도에이드",
+    "sourceName": "청포도에이드",
+    "english": "Green Grape Ade",
+    "category": "에이드·주스",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610115123_1717987883226_DMMQB84jmS.jpg",
+    "id": "drink-54",
+    "price": 4500,
+    "tone": "milk",
+    "description": "과일의 산뜻함을 가득 담은 상큼한 한 잔",
+    "image": "/images/drinks/drink-54-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-54-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610115123_1717987883226_DMMQB84jmS.jpg"
+    }
+  },
+  {
+    "name": "체리콜라",
+    "sourceName": "체리콜라",
+    "english": "Cherry Cola",
+    "category": "에이드·주스",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20260112140953_1768194593743_H_mUOKjS42.png",
+    "id": "drink-55",
+    "price": 4500,
+    "tone": "berry",
+    "description": "과일의 산뜻함을 가득 담은 상큼한 한 잔",
+    "image": "/images/drinks/drink-55-ICE.png",
+    "images": {
+      "ICE": "/images/drinks/drink-55-ICE.png"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20260112140953_1768194593743_H_mUOKjS42.png"
+    }
+  },
+  {
+    "name": "과일 믹스 에이드",
+    "sourceName": "메가에이드",
+    "english": "Ade",
+    "category": "에이드·주스",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610115027_1717987827980_oPj14Xi9y1.jpg",
+    "id": "drink-56",
+    "price": 4500,
+    "tone": "milk",
+    "description": "과일의 산뜻함을 가득 담은 상큼한 한 잔",
+    "image": "/images/drinks/drink-56-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-56-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610115027_1717987827980_oPj14Xi9y1.jpg"
+    }
+  },
+  {
+    "name": "자몽 톡톡 스무디",
+    "sourceName": "자몽 톡톡 스무디",
+    "english": "Grapefruit Smoothie",
+    "category": "스무디·프라페",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20260429173124_1777451484221_DbGYiTq_EF.png",
+    "id": "drink-57",
+    "price": 4500,
+    "tone": "berry",
+    "description": "시원하고 부드럽게 즐기는 달콤한 블렌딩",
+    "image": "/images/drinks/drink-57-ICE.png",
+    "images": {
+      "ICE": "/images/drinks/drink-57-ICE.png"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20260429173124_1777451484221_DbGYiTq_EF.png"
+    }
+  },
+  {
+    "name": "밀크쉐이크",
+    "sourceName": "밀크쉐이크",
+    "english": "Milkshake",
+    "category": "스무디·프라페",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20251210220621_1765371981583_lnOltIAEKR.png",
+    "id": "drink-58",
+    "price": 4500,
+    "tone": "milk",
+    "description": "시원하고 부드럽게 즐기는 달콤한 블렌딩",
+    "image": "/images/drinks/drink-58-ICE.png",
+    "images": {
+      "ICE": "/images/drinks/drink-58-ICE.png"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20251210220621_1765371981583_lnOltIAEKR.png"
+    }
+  },
+  {
+    "name": "블루베리요거트스무디",
+    "sourceName": "블루베리요거트스무디",
+    "english": "Blueberry Yogurt Smoothie",
+    "category": "스무디·프라페",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320003134_1742398294871_z9t_oXfbA6.jpg",
+    "id": "drink-59",
+    "price": 4500,
+    "tone": "berry",
+    "description": "시원하고 부드럽게 즐기는 달콤한 블렌딩",
+    "image": "/images/drinks/drink-59-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-59-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320003134_1742398294871_z9t_oXfbA6.jpg"
+    }
+  },
+  {
+    "name": "귤 톡톡 젤리스무디",
+    "sourceName": "귤 톡톡 젤리스무디",
+    "english": "Tangerine Jelly Smoothie",
+    "category": "스무디·프라페",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320003615_1742398575781_Dy89tEHQTL.jpg",
+    "id": "drink-60",
+    "price": 4500,
+    "tone": "citrus",
+    "description": "시원하고 부드럽게 즐기는 달콤한 블렌딩",
+    "image": "/images/drinks/drink-60-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-60-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320003615_1742398575781_Dy89tEHQTL.jpg"
+    }
+  },
+  {
+    "name": "골드망고스무디",
+    "sourceName": "골드망고스무디",
+    "english": "Gold Mango Smoothie",
+    "category": "스무디·프라페",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610112826_1717986506337_AauGwyguRG.jpg",
+    "id": "drink-61",
+    "price": 4500,
+    "tone": "citrus",
+    "description": "시원하고 부드럽게 즐기는 달콤한 블렌딩",
+    "image": "/images/drinks/drink-61-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-61-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610112826_1717986506337_AauGwyguRG.jpg"
+    }
+  },
+  {
+    "name": "코코넛 커피 스무디",
+    "sourceName": "코코넛 커피 스무디",
+    "english": "Coconut Coffee Smoothie",
+    "category": "스무디·프라페",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132830_1717993710301_PxTeTM9Suh.jpg",
+    "id": "drink-62",
+    "price": 4500,
+    "tone": "milk",
+    "description": "시원하고 부드럽게 즐기는 달콤한 블렌딩",
+    "image": "/images/drinks/drink-62-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-62-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132830_1717993710301_PxTeTM9Suh.jpg"
+    }
+  },
+  {
+    "name": "딸기쿠키프라페",
+    "sourceName": "딸기쿠키프라페",
+    "english": "Strawberry Cookie Frappe",
+    "category": "스무디·프라페",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132048_1717993248890_NW1QEUmFtQ.jpg",
+    "id": "drink-63",
+    "price": 4500,
+    "tone": "berry",
+    "description": "시원하고 부드럽게 즐기는 달콤한 블렌딩",
+    "image": "/images/drinks/drink-63-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-63-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132048_1717993248890_NW1QEUmFtQ.jpg"
+    }
+  },
+  {
+    "name": "쿠키프라페",
+    "sourceName": "쿠키프라페",
+    "english": "Cookie Frappe",
+    "category": "스무디·프라페",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610115315_1717987995816_oiPZ2u5dJr.jpg",
+    "id": "drink-64",
+    "price": 4500,
+    "tone": "chocolate",
+    "description": "시원하고 부드럽게 즐기는 달콤한 블렌딩",
+    "image": "/images/drinks/drink-64-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-64-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610115315_1717987995816_oiPZ2u5dJr.jpg"
+    }
+  },
+  {
+    "name": "녹차프라페",
+    "sourceName": "녹차프라페",
+    "english": "Green Tea Frappe",
+    "category": "스무디·프라페",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20260318150847_1773814127229_oIDmdAQwND.png",
+    "id": "drink-65",
+    "price": 4500,
+    "tone": "matcha",
+    "description": "시원하고 부드럽게 즐기는 달콤한 블렌딩",
+    "image": "/images/drinks/drink-65-ICE.png",
+    "images": {
+      "ICE": "/images/drinks/drink-65-ICE.png"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20260318150847_1773814127229_oIDmdAQwND.png"
+    }
+  },
+  {
+    "name": "딸기요거트스무디",
+    "sourceName": "딸기요거트스무디",
+    "english": "Strawberry Yogurt Smoothie",
+    "category": "스무디·프라페",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132117_1717993277823_KRGDVA4aeJ.jpg",
+    "id": "drink-66",
+    "price": 4500,
+    "tone": "berry",
+    "description": "시원하고 부드럽게 즐기는 달콤한 블렌딩",
+    "image": "/images/drinks/drink-66-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-66-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132117_1717993277823_KRGDVA4aeJ.jpg"
+    }
+  },
+  {
+    "name": "딸기퐁크러쉬",
+    "sourceName": "딸기퐁크러쉬",
+    "english": "Strawberry Pongcrush",
+    "category": "스무디·프라페",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132132_1717993292542_TOXDd7N_72.jpg",
+    "id": "drink-67",
+    "price": 4500,
+    "tone": "berry",
+    "description": "시원하고 부드럽게 즐기는 달콤한 블렌딩",
+    "image": "/images/drinks/drink-67-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-67-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132132_1717993292542_TOXDd7N_72.jpg"
+    }
+  },
+  {
+    "name": "리얼초코프라페",
+    "sourceName": "리얼초코프라페",
+    "english": "Real Chocolate Frappe",
+    "category": "스무디·프라페",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132157_1717993317456_RCHCZKkudt.jpg",
+    "id": "drink-68",
+    "price": 4500,
+    "tone": "chocolate",
+    "description": "시원하고 부드럽게 즐기는 달콤한 블렌딩",
+    "image": "/images/drinks/drink-68-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-68-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132157_1717993317456_RCHCZKkudt.jpg"
+    }
+  },
+  {
+    "name": "망고요거트스무디",
+    "sourceName": "망고요거트스무디",
+    "english": "Mango Yogurt Smoothie",
+    "category": "스무디·프라페",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132210_1717993330781_04rKlgIKk6.jpg",
+    "id": "drink-69",
+    "price": 4500,
+    "tone": "citrus",
+    "description": "시원하고 부드럽게 즐기는 달콤한 블렌딩",
+    "image": "/images/drinks/drink-69-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-69-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132210_1717993330781_04rKlgIKk6.jpg"
+    }
+  },
+  {
+    "name": "민트프라페",
+    "sourceName": "민트프라페",
+    "english": "Mint Frappe",
+    "category": "스무디·프라페",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610115353_1717988033471_n8WL4rST4C.jpg",
+    "id": "drink-70",
+    "price": 4500,
+    "tone": "milk",
+    "description": "시원하고 부드럽게 즐기는 달콤한 블렌딩",
+    "image": "/images/drinks/drink-70-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-70-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610115353_1717988033471_n8WL4rST4C.jpg"
+    }
+  },
+  {
+    "name": "바나나퐁크러쉬",
+    "sourceName": "바나나퐁크러쉬",
+    "english": "Banana Pongcrush",
+    "category": "스무디·프라페",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132238_1717993358631_MGPEpkvNh1.jpg",
+    "id": "drink-71",
+    "price": 4500,
+    "tone": "milk",
+    "description": "시원하고 부드럽게 즐기는 달콤한 블렌딩",
+    "image": "/images/drinks/drink-71-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-71-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132238_1717993358631_MGPEpkvNh1.jpg"
+    }
+  },
+  {
+    "name": "초코허니퐁크러쉬",
+    "sourceName": "초코허니퐁크러쉬",
+    "english": "Chocolate Honey Pong Crush",
+    "category": "스무디·프라페",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132651_1717993611266_QFRonrkBzf.jpg",
+    "id": "drink-72",
+    "price": 4500,
+    "tone": "chocolate",
+    "description": "시원하고 부드럽게 즐기는 달콤한 블렌딩",
+    "image": "/images/drinks/drink-72-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-72-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132651_1717993611266_QFRonrkBzf.jpg"
+    }
+  },
+  {
+    "name": "커피프라페",
+    "sourceName": "커피프라페",
+    "english": "Coffee Frappe",
+    "category": "스무디·프라페",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132804_1717993684465__jH6f5a2VM.jpg",
+    "id": "drink-73",
+    "price": 4500,
+    "tone": "milk",
+    "description": "시원하고 부드럽게 즐기는 달콤한 블렌딩",
+    "image": "/images/drinks/drink-73-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-73-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132804_1717993684465__jH6f5a2VM.jpg"
+    }
+  },
+  {
+    "name": "플레인요거트스무디",
+    "sourceName": "플레인요거트스무디",
+    "english": "Plain Yogurt Smoothie",
+    "category": "스무디·프라페",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240612101151_1718154711606_iC5h64zrID.jpg",
+    "id": "drink-74",
+    "price": 4500,
+    "tone": "milk",
+    "description": "시원하고 부드럽게 즐기는 달콤한 블렌딩",
+    "image": "/images/drinks/drink-74-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-74-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240612101151_1718154711606_iC5h64zrID.jpg"
+    }
+  },
+  {
+    "name": "플레인퐁크러쉬",
+    "sourceName": "플레인퐁크러쉬",
+    "english": "Plain Pongcrush",
+    "category": "스무디·프라페",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610113328_1717986808464_JOQsVpbWKq.jpg",
+    "id": "drink-75",
+    "price": 4500,
+    "tone": "milk",
+    "description": "시원하고 부드럽게 즐기는 달콤한 블렌딩",
+    "image": "/images/drinks/drink-75-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-75-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610113328_1717986808464_JOQsVpbWKq.jpg"
+    }
+  },
+  {
+    "name": "디카페인 대용량 카페라떼",
+    "sourceName": "디카페인 왕메가카페라떼",
+    "english": "Decaf BIG Caffe Latte",
+    "category": "디카페인",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320004527_1742399127150_aZXw3Wbf4H.jpg",
+    "id": "drink-76",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "카페인 부담을 덜고, 커피의 풍미는 그대로",
+    "image": "/images/drinks/drink-76-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-76-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320004527_1742399127150_aZXw3Wbf4H.jpg"
+    }
+  },
+  {
+    "name": "디카페인 라이트 바닐라 아몬드라떼",
+    "sourceName": "디카페인 라이트 바닐라 아몬드라떼",
+    "english": "Decaf Light vanilla almond latte",
+    "category": "디카페인",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250402185107_1743587467742_jeeQmgRshX.jpg",
+    "id": "drink-77",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "카페인 부담을 덜고, 커피의 풍미는 그대로",
+    "image": "/images/drinks/drink-77.jpg",
+    "images": {},
+    "sourceImages": {}
+  },
+  {
+    "name": "디카페인 헛개리카노",
+    "sourceName": "(HOT)디카페인 헛개리카노",
+    "english": "Decaf Oriental Raisin-Tea Americano",
+    "category": "디카페인",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320002019_1742397619030_g5iEBTRsp7.jpg",
+    "id": "drink-78",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "카페인 부담을 덜고, 커피의 풍미는 그대로",
+    "image": "/images/drinks/drink-78-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-78-HOT.jpg",
+      "ICE": "/images/drinks/drink-78-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320002019_1742397619030_g5iEBTRsp7.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320002154_1742397714997_gJNgLAlBgB.jpg"
+    }
+  },
+  {
+    "name": "디카페인 대용량 헛개리카노",
+    "sourceName": "디카페인 왕메가헛개리카노",
+    "english": "Decaf BIG Oriental Raisin-Tea Americano",
+    "category": "디카페인",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320002658_1742398018940_tQcZf5VEmt.jpg",
+    "id": "drink-79",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "카페인 부담을 덜고, 커피의 풍미는 그대로",
+    "image": "/images/drinks/drink-79-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-79-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250320002658_1742398018940_tQcZf5VEmt.jpg"
+    }
+  },
+  {
+    "name": "디카페인 에스프레소",
+    "sourceName": "디카페인 에스프레소",
+    "english": "Decaf Espresso",
+    "category": "디카페인",
+    "temperatures": [
+      "HOT"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610110159_1717984919074_jg4RYBdr_J.jpg",
+    "id": "drink-80",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "카페인 부담을 덜고, 커피의 풍미는 그대로",
+    "image": "/images/drinks/drink-80.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-80-HOT.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610110159_1717984919074_jg4RYBdr_J.jpg"
+    }
+  },
+  {
+    "name": "디카페인 아메리카노",
+    "sourceName": "디카페인 아메리카노",
+    "english": "Decaf Americano",
+    "category": "디카페인",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105207_1717984327186_Sgj9kfKYCi.jpg",
+    "id": "drink-81",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "카페인 부담을 덜고, 커피의 풍미는 그대로",
+    "image": "/images/drinks/drink-81-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-81-HOT.jpg",
+      "ICE": "/images/drinks/drink-81-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105207_1717984327186_Sgj9kfKYCi.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240612101052_1718154652699_a0ElVTNb16.jpg"
+    }
+  },
+  {
+    "name": "디카페인 꿀아메리카노",
+    "sourceName": "디카페인 꿀아메리카노",
+    "english": "Decaf Honey Americano",
+    "category": "디카페인",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610104414_1717983854651_gNaXxjR35W.jpg",
+    "id": "drink-82",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "카페인 부담을 덜고, 커피의 풍미는 그대로",
+    "image": "/images/drinks/drink-82-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-82-HOT.jpg",
+      "ICE": "/images/drinks/drink-82-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610104414_1717983854651_gNaXxjR35W.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610131949_1717993189396_pb_H77_7AM.jpg"
+    }
+  },
+  {
+    "name": "디카페인 카페라떼",
+    "sourceName": "디카페인 카페라떼",
+    "english": "Decaf Cafe Latte",
+    "category": "디카페인",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105117_1717984277710_7BjonXSBFE.jpg",
+    "id": "drink-83",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "카페인 부담을 덜고, 커피의 풍미는 그대로",
+    "image": "/images/drinks/drink-83-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-83-HOT.jpg",
+      "ICE": "/images/drinks/drink-83-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105117_1717984277710_7BjonXSBFE.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132005_1717993205762_9xKCxaSb9P.jpg"
+    }
+  },
+  {
+    "name": "디카페인 카푸치노",
+    "sourceName": "디카페인 카푸치노",
+    "english": "Decaf Cappuccino",
+    "category": "디카페인",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105545_1717984545629_CaGhOpvAnm.jpg",
+    "id": "drink-84",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "카페인 부담을 덜고, 커피의 풍미는 그대로",
+    "image": "/images/drinks/drink-84-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-84-HOT.jpg",
+      "ICE": "/images/drinks/drink-84-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105545_1717984545629_CaGhOpvAnm.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132018_1717993218605_64Ij4AhmCE.jpg"
+    }
+  },
+  {
+    "name": "디카페인 바닐라라떼",
+    "sourceName": "디카페인 바닐라라떼",
+    "english": "Decaf Vanilla Latte",
+    "category": "디카페인",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610104630_1717983990934_v3HPYN93uK.jpg",
+    "id": "drink-85",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "카페인 부담을 덜고, 커피의 풍미는 그대로",
+    "image": "/images/drinks/drink-85-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-85-HOT.jpg",
+      "ICE": "/images/drinks/drink-85-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610104630_1717983990934_v3HPYN93uK.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610113234_1717986754069_tSPQqoiPj6.jpg"
+    }
+  },
+  {
+    "name": "디카페인 헤이즐넛 라떼",
+    "sourceName": "디카페인 헤이즐넛 라떼",
+    "english": "Decaf Hazelnut Latte",
+    "category": "디카페인",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105007_1717984207073_HqCto2mw3y.jpg",
+    "id": "drink-86",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "카페인 부담을 덜고, 커피의 풍미는 그대로",
+    "image": "/images/drinks/drink-86-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-86-HOT.jpg",
+      "ICE": "/images/drinks/drink-86-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105007_1717984207073_HqCto2mw3y.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132034_1717993234457_aGDHQ0U0Ap.jpg"
+    }
+  },
+  {
+    "name": "디카페인 카라멜마끼아또",
+    "sourceName": "디카페인 카라멜마끼아또",
+    "english": "Decaf Caramel Macchiato",
+    "category": "디카페인",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105238_1717984358779_MvgzcNlZdI.jpg",
+    "id": "drink-87",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "카페인 부담을 덜고, 커피의 풍미는 그대로",
+    "image": "/images/drinks/drink-87-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-87-HOT.jpg",
+      "ICE": "/images/drinks/drink-87-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105238_1717984358779_MvgzcNlZdI.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610131917_1717993157515_k1yeakRwwv.jpg"
+    }
+  },
+  {
+    "name": "디카페인 연유라떼",
+    "sourceName": "디카페인 연유라떼",
+    "english": "Decaf Condensed Milk Latte",
+    "category": "디카페인",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105224_1717984344775_9iKsKownRh.jpg",
+    "id": "drink-88",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "카페인 부담을 덜고, 커피의 풍미는 그대로",
+    "image": "/images/drinks/drink-88-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-88-HOT.jpg",
+      "ICE": "/images/drinks/drink-88-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105224_1717984344775_9iKsKownRh.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610131759_1717993079921_A7Gr7qp0g2.jpg"
+    }
+  },
+  {
+    "name": "디카페인 카페모카",
+    "sourceName": "디카페인 카페모카",
+    "english": "Decaf Cafe Mocha",
+    "category": "디카페인",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105145_1717984305671_2_yE7sXma9.jpg",
+    "id": "drink-89",
+    "price": 3500,
+    "tone": "chocolate",
+    "description": "카페인 부담을 덜고, 커피의 풍미는 그대로",
+    "image": "/images/drinks/drink-89-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-89-HOT.jpg",
+      "ICE": "/images/drinks/drink-89-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105145_1717984305671_2_yE7sXma9.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240612101114_1718154674451_BGo4AZa57r.jpg"
+    }
+  },
+  {
+    "name": "디카페인 대용량 아메리카노",
+    "sourceName": "디카페인 메가리카노",
+    "english": "Decaf ricano",
+    "category": "디카페인",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610115001_1717987801368_av938eflM8.jpg",
+    "id": "drink-90",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "카페인 부담을 덜고, 커피의 풍미는 그대로",
+    "image": "/images/drinks/drink-90-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-90-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610115001_1717987801368_av938eflM8.jpg"
+    }
+  },
+  {
+    "name": "콜드브루디카페인",
+    "sourceName": "콜드브루디카페인",
+    "english": "Decaf Coldbrew",
+    "category": "디카페인",
+    "temperatures": [
+      "ICE",
+      "HOT"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132920_1717993760751_69WHioWjnb.jpg",
+    "id": "drink-93",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "카페인 부담을 덜고, 커피의 풍미는 그대로",
+    "image": "/images/drinks/drink-93-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-93-ICE.jpg",
+      "HOT": "/images/drinks/drink-93-HOT.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132920_1717993760751_69WHioWjnb.jpg",
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105522_1717984522154_Wf1ds9riaV.jpg"
+    }
+  },
+  {
+    "name": "콜드브루디카페인라떼",
+    "sourceName": "콜드브루디카페인라떼",
+    "english": "Decaf Coldbrew Latte",
+    "category": "디카페인",
+    "temperatures": [
+      "ICE",
+      "HOT"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132902_1717993742550_EBciHOxu2w.jpg",
+    "id": "drink-94",
+    "price": 3500,
+    "tone": "coffee",
+    "description": "카페인 부담을 덜고, 커피의 풍미는 그대로",
+    "image": "/images/drinks/drink-94-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-94-ICE.jpg",
+      "HOT": "/images/drinks/drink-94-HOT.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132902_1717993742550_EBciHOxu2w.jpg",
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105453_1717984493950_uK1VQNQ6kc.jpg"
+    }
+  },
+  {
+    "name": "딸기라떼",
+    "sourceName": "딸기라떼",
+    "english": "Strawberry Latte",
+    "category": "논커피",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250116001724_1736954244791_8qDsY0gj14.jpg",
+    "id": "drink-95",
+    "price": 4000,
+    "tone": "berry",
+    "description": "커피 없이도 충분히 달콤한 나만의 휴식",
+    "image": "/images/drinks/drink-95-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-95-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20250116001724_1736954244791_8qDsY0gj14.jpg"
+    }
+  },
+  {
+    "name": "대용량 초코",
+    "sourceName": "왕메가초코",
+    "english": "32oz Chocolate",
+    "category": "논커피",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610114853_1717987733636_Uq2ZKYINXZ.jpg",
+    "id": "drink-96",
+    "price": 4000,
+    "tone": "chocolate",
+    "description": "커피 없이도 충분히 달콤한 나만의 휴식",
+    "image": "/images/drinks/drink-96-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-96-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610114853_1717987733636_Uq2ZKYINXZ.jpg"
+    }
+  },
+  {
+    "name": "고구마라떼",
+    "sourceName": "고구마라떼",
+    "english": "Sweet Potato Latte",
+    "category": "논커피",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610104240_1717983760778_agCooQEUb4.jpg",
+    "id": "drink-97",
+    "price": 4000,
+    "tone": "milk",
+    "description": "커피 없이도 충분히 달콤한 나만의 휴식",
+    "image": "/images/drinks/drink-97-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-97-HOT.jpg",
+      "ICE": "/images/drinks/drink-97-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610104240_1717983760778_agCooQEUb4.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610112707_1717986427949_WKHpsJWXlk.jpg"
+    }
+  },
+  {
+    "name": "곡물라떼",
+    "sourceName": "곡물라떼",
+    "english": "Grain Latte",
+    "category": "논커피",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610104323_1717983803197_Dpwa_RK4_F.jpg",
+    "id": "drink-98",
+    "price": 4000,
+    "tone": "milk",
+    "description": "커피 없이도 충분히 달콤한 나만의 휴식",
+    "image": "/images/drinks/drink-98-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-98-HOT.jpg",
+      "ICE": "/images/drinks/drink-98-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610104323_1717983803197_Dpwa_RK4_F.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610112734_1717986454714_tTXJ2aV1O8.jpg"
+    }
+  },
+  {
+    "name": "토피넛라떼",
+    "sourceName": "토피넛라떼",
+    "english": "Toffeenut Latte",
+    "category": "논커피",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105954_1717984794244_2JeEMNYiCL.jpg",
+    "id": "drink-99",
+    "price": 4000,
+    "tone": "milk",
+    "description": "커피 없이도 충분히 달콤한 나만의 휴식",
+    "image": "/images/drinks/drink-99-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-99-HOT.jpg",
+      "ICE": "/images/drinks/drink-99-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105954_1717984794244_2JeEMNYiCL.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132535_1717993535868_Dk0SpiNnAo.jpg"
+    }
+  },
+  {
+    "name": "오레오초코라떼",
+    "sourceName": "오레오초코라떼",
+    "english": "Oreo Chocolate Latte",
+    "category": "논커피",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132638_1717993598875_AQ4q6GUaJD.jpg",
+    "id": "drink-100",
+    "price": 4000,
+    "tone": "chocolate",
+    "description": "커피 없이도 충분히 달콤한 나만의 휴식",
+    "image": "/images/drinks/drink-100-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-100-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132638_1717993598875_AQ4q6GUaJD.jpg"
+    }
+  },
+  {
+    "name": "흑당버블밀크티라떼",
+    "sourceName": "흑당버블밀크티라떼",
+    "english": "Brown Sugar Bubble Milktea Latte",
+    "category": "논커피",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610112956_1717986596859_dSAYDVVaV2.jpg",
+    "id": "drink-101",
+    "price": 4000,
+    "tone": "milk",
+    "description": "커피 없이도 충분히 달콤한 나만의 휴식",
+    "image": "/images/drinks/drink-101-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-101-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610112956_1717986596859_dSAYDVVaV2.jpg"
+    }
+  },
+  {
+    "name": "핫초코",
+    "sourceName": "핫초코",
+    "english": "Hot Chocolate",
+    "category": "논커피",
+    "temperatures": [
+      "HOT"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610110045_1717984845295_sGoEnUlQpO.jpg",
+    "id": "drink-102",
+    "price": 4000,
+    "tone": "chocolate",
+    "description": "커피 없이도 충분히 달콤한 나만의 휴식",
+    "image": "/images/drinks/drink-102.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-102-HOT.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610110045_1717984845295_sGoEnUlQpO.jpg"
+    }
+  },
+  {
+    "name": "녹차라떼",
+    "sourceName": "녹차라떼",
+    "english": "Green Tea Latte",
+    "category": "논커피",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610104456_1717983896154_TxgXQHRHiM.jpg",
+    "id": "drink-103",
+    "price": 4000,
+    "tone": "matcha",
+    "description": "커피 없이도 충분히 달콤한 나만의 휴식",
+    "image": "/images/drinks/drink-103-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-103-HOT.jpg",
+      "ICE": "/images/drinks/drink-103-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610104456_1717983896154_TxgXQHRHiM.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610112917_1717986557781__XIcwRbg0h.jpg"
+    }
+  },
+  {
+    "name": "로얄밀크티라떼",
+    "sourceName": "로얄밀크티라떼",
+    "english": "Royal Milk Tea Latte",
+    "category": "논커피",
+    "temperatures": [
+      "HOT",
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105616_1717984576627_IStTaWZY3_.jpg",
+    "id": "drink-104",
+    "price": 4000,
+    "tone": "milk",
+    "description": "커피 없이도 충분히 달콤한 나만의 휴식",
+    "image": "/images/drinks/drink-104-ICE.jpg",
+    "images": {
+      "HOT": "/images/drinks/drink-104-HOT.jpg",
+      "ICE": "/images/drinks/drink-104-ICE.jpg"
+    },
+    "sourceImages": {
+      "HOT": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610105616_1717984576627_IStTaWZY3_.jpg",
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610115251_1717987971895_crJlbiHg7t.jpg"
+    }
+  },
+  {
+    "name": "흑당라떼",
+    "sourceName": "흑당라떼",
+    "english": "Brown Sugar Latte (No Pearls)",
+    "category": "논커피",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610113159_1717986719673_UjpcQYhtmh.jpg",
+    "id": "drink-105",
+    "price": 4000,
+    "tone": "milk",
+    "description": "커피 없이도 충분히 달콤한 나만의 휴식",
+    "image": "/images/drinks/drink-105-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-105-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610113159_1717986719673_UjpcQYhtmh.jpg"
+    }
+  },
+  {
+    "name": "흑당밀크티라떼",
+    "sourceName": "흑당밀크티라떼",
+    "english": "Brown Sugar Milk tea Latte (No pearls)",
+    "category": "논커피",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610113123_1717986683549_Q8E9tuNYJL.jpg",
+    "id": "drink-106",
+    "price": 4000,
+    "tone": "milk",
+    "description": "커피 없이도 충분히 달콤한 나만의 휴식",
+    "image": "/images/drinks/drink-106-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-106-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610113123_1717986683549_Q8E9tuNYJL.jpg"
+    }
+  },
+  {
+    "name": "흑당버블라떼",
+    "sourceName": "흑당버블라떼",
+    "english": "Brown Sugar Bubble Latte",
+    "category": "논커피",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610113023_1717986623453_FuG0kt97Jg.jpg",
+    "id": "drink-107",
+    "price": 4000,
+    "tone": "milk",
+    "description": "커피 없이도 충분히 달콤한 나만의 휴식",
+    "image": "/images/drinks/drink-107-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-107-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610113023_1717986623453_FuG0kt97Jg.jpg"
+    }
+  },
+  {
+    "name": "아이스초코",
+    "sourceName": "아이스초코",
+    "english": "Ice Choco",
+    "category": "논커피",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132420_1717993460739_Yi5zAd90Og.jpg",
+    "id": "drink-108",
+    "price": 4000,
+    "tone": "chocolate",
+    "description": "커피 없이도 충분히 달콤한 나만의 휴식",
+    "image": "/images/drinks/drink-108-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-108-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20240610132420_1717993460739_Yi5zAd90Og.jpg"
+    }
+  },
+  {
+    "name": "하우스밀크 라떼",
+    "sourceName": "하우스밀크 라떼",
+    "english": "House Milk Latte",
+    "category": "커피",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20260902203101_1788348661533_weMnhAbV2Q.jpg",
+    "id": "drink-109",
+    "price": 4500,
+    "tone": "coffee",
+    "description": "새롭게 만나는 특별한 한 잔",
+    "image": "/images/drinks/drink-109-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-109-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20260902203101_1788348661533_weMnhAbV2Q.jpg"
+    }
+  },
+  {
+    "name": "무카페인 오르조라떼",
+    "sourceName": "무카페인 오르조라떼",
+    "english": "Caffeine-Free Orzo Latte",
+    "category": "논커피",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20260902203238_1788348758239_bicMYSpckp.jpg",
+    "id": "drink-110",
+    "price": 4500,
+    "tone": "coffee",
+    "description": "새롭게 만나는 특별한 한 잔",
+    "image": "/images/drinks/drink-110-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-110-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20260902203238_1788348758239_bicMYSpckp.jpg"
+    }
+  },
+  {
+    "name": "저당 골든애플 블랙티",
+    "sourceName": "저당 골든애플 블랙티",
+    "english": "Low-Sugar Golden Apple Black Tea",
+    "category": "티",
+    "temperatures": [
+      "ICE"
+    ],
+    "sourceImage": "https://img.79plus.co.kr/megahp/manager/upload/menu/20260916234952_1789570192916_xCpTUY41pJ.jpg",
+    "id": "drink-111",
+    "price": 4500,
+    "tone": "tea",
+    "description": "새롭게 만나는 특별한 한 잔",
+    "image": "/images/drinks/drink-111-ICE.jpg",
+    "images": {
+      "ICE": "/images/drinks/drink-111-ICE.jpg"
+    },
+    "sourceImages": {
+      "ICE": "https://img.79plus.co.kr/megahp/manager/upload/menu/20260916234952_1789570192916_xCpTUY41pJ.jpg"
+    }
+  }
+]
