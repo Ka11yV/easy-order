@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { ArrowRight, Barcode, Check, ChevronLeft, ChevronRight, Home, Minus, Plus, Search, ShoppingBag, Trash2, UtensilsCrossed, X } from 'lucide-react';
 import menu from './menu.json';
 import './style.css';
+import Control from './Control.jsx';
 
 const won = value => `${value.toLocaleString('ko-KR')}원`;
 const categories = ['전체', '커피', '논커피', '티', '에이드·주스', '스무디·프라페', '디카페인'];
@@ -228,4 +229,4 @@ function App() {
   </div>;
 }
 
-createRoot(document.getElementById('root')).render(<App />);
+createRoot(document.getElementById('root')).render(window.location.pathname === '/control' ? <Control /> : <App />);
