@@ -10,7 +10,8 @@
     "dev:agent": "node server/index.js",
     "start": "NODE_ENV=production node server/index.js",
     "test": "node --test tests/*.test.js",
-    "test:e2e": "node --test tests/*.e2e.js"
+    "test:e2e": "node --test tests/*.e2e.js",
+    "test:live": "node scripts/smoke-live.js"
   },
   "dependencies": {
     "dotenv": "^18.0.4",
