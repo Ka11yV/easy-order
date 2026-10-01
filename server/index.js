@@ -18,7 +18,10 @@ if (process.env.NODE_ENV !== 'production') {
   service.app.use(express.static(dist));
   service.app.get('/{*path}', (_req, res) => res.sendFile(`${dist}/index.html`));
 }
-http.listen(port, '127.0.0.1', () => console.log(`텍스트 주문: ${origin}/control\n키오스크: ${origin}/`));
+http.listen(port, '127.0.0.1', async () => {
+  console.log(`음성 키오스크: ${origin}/`);
+  try { await service.start(); } catch (error) { console.error('키오스크 실행 실패:', error.message); await service.close(); await vite?.close(); http.close(); process.exitCode = 1; }
+});
 http.on('error', error => { console.error(`서버를 열 수 없습니다: ${error.code}`); process.exitCode = 1; });
 for (const event of ['SIGINT', 'SIGTERM']) process.on(event, async () => {
   await service.close(); await vite?.close(); http.close(); process.exit(0);

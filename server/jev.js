@@ -13,7 +13,7 @@ export function validateAnswers(body, questions, threshold) {
       || !Number.isFinite(answer.confidence) || answer.confidence < 0 || answer.confidence > 1) {
       throw new AgentError('JEV가 허용되지 않은 선택을 반환했습니다.', 'INVALID_RESPONSE');
     }
-    if (answer.confidence < threshold) throw new AgentError('요청이 명확하지 않습니다. 메뉴, 온도, 수량을 구체적으로 입력해 주세요.', 'UNCERTAIN');
+    if (answer.confidence < threshold) throw new AgentError('요청이 명확하지 않습니다. 메뉴, 온도, 수량을 구체적으로 말씀해 주세요.', 'UNCERTAIN');
     result[id] = answer.choice;
   }
   return result;

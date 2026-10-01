@@ -1,0 +1,10 @@
+/* Space reserved for the permanent voice control; it never covers checkout. */
+.kiosk{padding-bottom:100px}.start-screen{padding-bottom:120px}.toast{bottom:116px}
+.voice-dock{position:fixed;right:24px;bottom:max(20px,env(safe-area-inset-bottom));z-index:1000;display:flex;align-items:center;gap:18px;max-width:calc(100vw - 48px);font-family:'Noto Sans KR',sans-serif}
+.voice-button{display:flex;align-items:center;gap:13px;min-height:66px;padding:10px 22px 10px 12px;border-radius:40px;background:#244d3c;color:white;box-shadow:0 6px 24px #18392b24;border:1px solid #ffffff40;font-size:18px;font-weight:700;white-space:nowrap}
+.voice-icon{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#ffffff18}.voice-button.listening{background:#aa422f}.voice-button.listening .voice-icon{animation:voice-pulse 1.5s infinite}.voice-button.connecting .voice-icon svg,.voice-button.ordering .voice-icon svg,.voice-button.stopping .voice-icon svg{animation:voice-spin 1.8s linear infinite}.voice-stop{margin-left:4px;opacity:.75}
+.voice-message{max-width:min(560px,55vw);padding:15px 20px;background:white;border:1px solid #dbe4d6;border-radius:16px;box-shadow:0 4px 24px #17261e10;font-size:16px;line-height:1.65;color:#244d3c;word-break:keep-all}.voice-message.error{color:#973b2d;border-color:#dfb8b1}
+.modal{max-height:calc(100dvh - 150px);margin-top:auto;margin-bottom:auto;overflow:auto}
+@keyframes voice-spin{to{transform:rotate(360deg)}}@keyframes voice-pulse{50%{box-shadow:0 0 0 7px #ffffff20}}
+@media(max-width:650px){.voice-dock{right:16px;bottom:16px;max-width:calc(100vw - 32px);gap:10px}.voice-button{font-size:15px;padding-right:16px;gap:8px;min-height:60px}.voice-message{font-size:13px;padding:10px 13px;max-width:calc(100vw - 210px)}.kiosk{padding-bottom:90px}}
+@media(prefers-reduced-motion:reduce){.voice-dock *{animation:none!important}}

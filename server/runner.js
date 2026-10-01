@@ -1,6 +1,5 @@
-import { setTimeout as delay } from 'node:timers/promises';
 import { AgentError, choice } from './jev.js';
-import { planCommand, expectedCart, cartMatches } from './planner.js';
+import { planCommand, expectedCart, cartMatches, menu } from './planner.js';
 
 export class OrderRunner {
   constructor({ browser, client, emit }) { this.browser = browser; this.client = client; this.emit = emit; this.pending = null; this.clarification = null; }
@@ -23,7 +22,7 @@ export class OrderRunner {
     signal.throwIfAborted();
     if (answers.action === 'blocked') throw new AgentError('JEV가 현재 화면에서 작업을 결정하지 못했습니다.', 'BLOCKED');
     // The task contract guards against valid-but-wrong choices (e.g. deleting instead of editing).
-    if (answers.action !== ref) throw new AgentError('JEV 선택이 현재 작업과 일치하지 않아 클릭하지 않았습니다. 요청을 구체적으로 다시 입력해 주세요.', 'WRONG_ACTION');
+    if (answers.action !== ref) throw new AgentError('JEV 선택이 현재 작업과 일치하지 않아 클릭하지 않았습니다. 요청을 구체적으로 다시 말씀해 주세요.', 'WRONG_ACTION');
     await this.browser.execute({ ref, type: value === undefined ? 'click' : 'fill', value }, snapshot, signal);
     this.log(instruction, { phase: 'executed', target: target.name });
   }
@@ -90,9 +89,14 @@ export class OrderRunner {
     if (plan.intent === 'add') {
       for (const item of plan.items) {
         if (!(await this.browser.snapshot()).mode) throw new AgentError('매장 또는 포장을 먼저 선택해 주세요.', 'CLARIFY');
-        if (await this.button('전체').getAttribute('aria-pressed') !== 'true') await this.click('전체', signal);
-        await this.step(`메뉴 검색창에 "${item.name}"을 입력하세요.`, this.browser.page.getByRole('textbox', { name: '메뉴 검색', exact: true }), signal, { value: item.name });
+        const category = menu.find(product => product.name === item.name).category;
+        // Traverse the visible menu exactly as a customer does; no text search field.
+        await this.click(category, signal);
         const product = this.browser.page.locator('.product').filter({ has: this.browser.page.getByRole('heading', { name: item.name, exact: true }) });
+        for (let page = 0; await product.count() === 0 && page < 30; page++) {
+          if (await this.button('다음 메뉴 페이지').isDisabled()) break;
+          await this.click('다음 메뉴 페이지', signal);
+        }
         await this.step(`"${item.name}" 메뉴 카드를 선택하세요.`, product, signal);
         await this.configure(item, signal);
       }
@@ -100,7 +104,8 @@ export class OrderRunner {
     const after = await this.browser.snapshot();
     if (!cartMatches(after.cart, expected)) throw new AgentError('화면의 주문 내역이 요청과 일치하지 않습니다. 현재 장바구니를 확인해 주세요.', 'VERIFY');
     if (plan.checkout) return this.preparePayment(plan.payment, signal);
-    return { message: plan.intent === 'remove' ? '메뉴를 삭제했습니다.' : '주문 내역을 화면에서 확인했습니다.', cart: after.cart };
+    const summary = after.cart.map(item => `${item.temperature === 'HOT' ? '따뜻한' : '아이스'} ${item.name} ${item.quantity}잔${item.shot ? ', 샷 추가' : ''}`).join(', ');
+    return { message: after.cart.length ? `주문 내역은 ${summary}입니다. 추가 주문이나 결제 방법을 말씀해 주세요.` : '메뉴를 삭제했습니다. 다른 메뉴를 말씀해 주세요.', cart: after.cart };
   }
   async preparePayment(method, signal) {
     const snap = await this.browser.snapshot();
@@ -112,7 +117,7 @@ export class OrderRunner {
     const selected = await this.browser.snapshot();
     this.pending = { fingerprint: selected.fingerprint, cart: selected.cart, mode: selected.mode, method,
       total: selected.cart.reduce((sum, item) => sum + item.quantity * item.price, 0) };
-    return { message: `${method} 모의 결제를 진행할까요?`, confirmation: this.pending };
+    return { message: `총 ${this.pending.total.toLocaleString('ko-KR')}원입니다. ${method} 모의 결제를 진행할까요? 네 또는 아니요로 말씀해 주세요.`, confirmation: this.pending };
   }
   async confirm(signal) {
     this.actions = 0;

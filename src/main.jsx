@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ArrowRight, Barcode, Check, ChevronLeft, ChevronRight, Home, Minus, Plus, Search, ShoppingBag, Trash2, UtensilsCrossed, X } from 'lucide-react';
+import { ArrowRight, Barcode, Check, ChevronLeft, ChevronRight, Home, Minus, Plus, ShoppingBag, Trash2, UtensilsCrossed, X } from 'lucide-react';
 import menu from './menu.json';
 import './style.css';
-import Control from './Control.jsx';
+import VoiceOrder from './VoiceOrder.jsx';
 
 const won = value => `${value.toLocaleString('ko-KR')}원`;
 const categories = ['전체', '커피', '논커피', '티', '에이드·주스', '스무디·프라페', '디카페인'];
@@ -52,7 +52,6 @@ function Stepper({ value, onChange, label }) {
 function App() {
   const [mode, setMode] = useState(null);
   const [category, setCategory] = useState('전체');
-  const [query, setQuery] = useState('');
   const [page, setPage] = useState(0);
   const [cart, setCart] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -66,7 +65,7 @@ function App() {
   const [orderNumber, setOrderNumber] = useState(101);
   const [notice, setNotice] = useState('');
   const grid = useRef(null);
-  const filtered = products.filter(item => (category === '전체' || item.category === category) && item.name.includes(query.trim()));
+  const filtered = products.filter(item => (category === '전체' || item.category === category));
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const visible = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const count = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -78,7 +77,7 @@ function App() {
     return () => clearTimeout(timer);
   }, [dialog]);
 
-  useEffect(() => { grid.current?.scrollTo(0, 0); }, [page, category, query]);
+  useEffect(() => { grid.current?.scrollTo(0, 0); }, [page, category]);
   useEffect(() => {
     if (!notice) return;
     const timer = setTimeout(() => setNotice(''), 2000);
@@ -109,7 +108,7 @@ function App() {
   }
   function reset() {
     setCart([]); setMode(null); setDialog(null); setSelected(null);
-    setQuery(''); setCategory('전체'); setPage(0); setNotice(''); setPaymentMethod(null); setPhone('');
+    setCategory('전체'); setPage(0); setNotice(''); setPaymentMethod(null); setPhone('');
   }
   function finish() { reset(); setOrderNumber(number => number + 1); }
 
@@ -142,14 +141,13 @@ function App() {
         </nav>
         <div className="catalog-tools">
           <span>{category} <b>{filtered.length}</b></span>
-          <label className="search"><Search size={20} /><input aria-label="메뉴 검색" placeholder="메뉴 검색" value={query} onChange={event => { setQuery(event.target.value); setPage(0); }} />{query && <button aria-label="검색 지우기" onClick={() => { setQuery(''); setPage(0); }}><X size={18} /></button>}</label>
         </div>
         <div className="product-grid" ref={grid}>
           {visible.map(item => <button className="product" key={item.id} onClick={() => select(item)} aria-label={`${item.name} ${won(item.price)} 선택`}>
             <div className="product-photo"><img src={item.image} alt={item.name} draggable="false" /></div>
             <h2>{item.name}</h2><strong className="product-price">{won(item.price)}</strong>
           </button>)}
-          {!visible.length && <div className="no-results"><Search size={32} /><p>검색 결과가 없습니다.</p><button onClick={() => { setQuery(''); setCategory('전체'); setPage(0); }}>전체 메뉴</button></div>}
+          {!visible.length && <div className="no-results"><p>메뉴가 없습니다.</p><button onClick={() => { setCategory('전체'); setPage(0); }}>전체 메뉴</button></div>}
         </div>
         <div className="pagination"><button disabled={page === 0} onClick={() => setPage(page - 1)} aria-label="이전 메뉴 페이지"><ChevronLeft size={24} /> 이전</button><span><strong>{page + 1}</strong> / {pages}</span><button disabled={page >= pages - 1} onClick={() => setPage(page + 1)} aria-label="다음 메뉴 페이지">다음 <ChevronRight size={24} /></button></div>
       </section>
@@ -229,4 +227,4 @@ function App() {
   </div>;
 }
 
-createRoot(document.getElementById('root')).render(window.location.pathname === '/control' ? <Control /> : <App />);
+createRoot(document.getElementById('root')).render(<><App /><VoiceOrder /></>);

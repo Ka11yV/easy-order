@@ -43,7 +43,7 @@ export async function planCommand(client, text, snapshot, signal) {
   const result = await client.decide(state, questions, signal, { threshold: 0 });
   const a = result.answers;
   const itemCount = a.intent === 'edit' ? 1 : a.intent === 'add' ? Number(a.item_count) : 0;
-  if (a.intent === 'add' && a.item_count === 'overflow') throw new AgentError('한 번에 세 종류까지 입력해 주세요.', 'CLARIFY');
+  if (a.intent === 'add' && a.item_count === 'overflow') throw new AgentError('한 번에 세 종류까지 말씀해 주세요.', 'CLARIFY');
   if (a.intent === 'add' && (![1, 2, 3].includes(itemCount) || result.confidences.item_count < client.threshold)) throw new AgentError('주문할 메뉴와 각각의 수량을 구체적으로 알려주세요.', 'CLARIFY');
   const mentions = menuMentions(text);
   const grounded = a.intent === 'add' && mentions.length === itemCount ? mentions : [];
@@ -73,7 +73,7 @@ export async function planCommand(client, text, snapshot, signal) {
   // Only relevant heads should gate execution. Irrelevant speculative heads often have low confidence.
   const plan = { intent: a.intent, mode: a.mode === 'unspecified' ? snapshot.mode : a.mode,
     payment: a.payment === 'unspecified' ? null : a.payment, checkout: a.intent === 'checkout' || a.checkout === 'yes', items: [], text };
-  if (a.intent === 'unknown') throw new AgentError('주문할 메뉴나 누를 버튼을 입력해 주세요.', 'CLARIFY');
+  if (a.intent === 'unknown') throw new AgentError('주문할 메뉴나 누를 버튼을 말씀해 주세요.', 'CLARIFY');
   if (['edit', 'remove'].includes(a.intent)) {
     const index = Number(a.line?.replace('line_', ''));
     if (!/^line_\d+$/.test(a.line) || !snapshot.cart[index]) throw new AgentError('어떤 메뉴를 수정할지 메뉴명과 온도를 알려주세요.', 'CLARIFY');
@@ -83,13 +83,13 @@ export async function planCommand(client, text, snapshot, signal) {
   if (['add', 'edit'].includes(a.intent)) {
     for (let i = 1; i <= itemCount; i++) {
       const product = a.intent === 'edit' ? menu.find(item => item.name === plan.line.name) : menu.find(item => String(item.id) === a[`menu${i}`]);
-      if (!product) throw new AgentError('정확한 메뉴명을 입력해 주세요. 예: 카페라떼, 바닐라라떼.', 'CLARIFY');
+      if (!product) throw new AgentError('정확한 메뉴명을 말씀해 주세요. 예: 카페라떼, 바닐라라떼.', 'CLARIFY');
       const rawTemp = a[`temperature${i}`];
       const temperature = rawTemp === 'unspecified' ? plan.line?.temperature || (product.temperatures.length === 1 ? product.temperatures[0] : null) : rawTemp;
       if (!temperature) throw new AgentError(`${product.name}는 아이스로 할까요, 따뜻하게 할까요?`, 'CLARIFY');
       if (!product.temperatures.includes(temperature)) throw new AgentError(`${product.name}는 ${product.temperatures.join('/')}만 가능합니다.`, 'CLARIFY');
       const q = a[`quantity${i}`];
-      if (q === 'unsupported') throw new AgentError('한 번에 1~20잔으로 입력해 주세요.', 'CLARIFY');
+      if (q === 'unsupported') throw new AgentError('한 번에 1~20잔으로 말씀해 주세요.', 'CLARIFY');
       const quantity = q === 'unspecified' ? plan.line?.quantity || 1 : Number(q);
       const rawShot = a[`shot${i}`];
       const shot = rawShot === 'unspecified' ? plan.line?.shot || false : rawShot === 'add';
@@ -108,7 +108,7 @@ export async function planCommand(client, text, snapshot, signal) {
     if (plan.intent === 'add') relevant.push(`menu${i}`);
     for (const field of ['temperature', 'quantity', 'shot']) if (a[`${field}${i}`] !== 'unspecified') relevant.push(`${field}${i}`);
   });
-  if (relevant.some(key => (result.confidences?.[key] ?? 0) < client.threshold)) throw new AgentError('주문 해석이 불확실합니다. 메뉴·온도·수량을 구체적으로 다시 입력해 주세요.', 'UNCERTAIN');
+  if (relevant.some(key => (result.confidences?.[key] ?? 0) < client.threshold)) throw new AgentError('주문 해석이 불확실합니다. 메뉴·온도·수량을 구체적으로 다시 말씀해 주세요.', 'UNCERTAIN');
   return plan;
 }
 
