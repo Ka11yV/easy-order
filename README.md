@@ -1,123 +1,70 @@
-# Easy Order — 텍스트로 조작하는 키오스크
+# Easy Order — 음성 키오스크
 
-React + Vite 키오스크에 TypeSafe JEV와 Playwright를 연결한 로컬 시연 서비스입니다. 사용자가 텍스트를 입력하면 JEV가 주문 항목과 화면 행동을 선택하고, 별도의 Chromium 창에서 Playwright가 실제 버튼 클릭과 입력을 수행합니다. STT·TTS 및 실제 결제는 포함하지 않습니다.
-
-## 자동화 실행
-
-Node.js 22.12+와 pnpm이 필요합니다.
-
-```sh
-pnpm install --frozen-lockfile
-pnpm exec playwright install chromium
-cp .env.example .env
-# .env의 TYPESAFE_API_KEY= 뒤에 본인의 키를 입력
-pnpm dev:agent
-```
-
-http://127.0.0.1:8787/control 에서 **키오스크 열기**를 누른 뒤 주문을 입력합니다. 키를 변경하면 서버를 중지하고 다시 실행해야 합니다. 키는 브라우저에 전달하지 않으며 `.env`는 Git에서 제외합니다. `.env.example`은 공유 가능한 빈 설정 양식입니다.
-
-- `pnpm dev`: 기존 키오스크만 실행 (기본 5173). 자동화 API는 제공하지 않습니다.
-- `pnpm dev:agent`: 제어 화면 + 키오스크 + 자동화 API를 하나의 로컬 서버에서 실행 (8787).
-- `pnpm build && pnpm start`: 빌드한 화면으로 자동화 서버 실행.
-- `BROWSER_HEADLESS=false`: 조작 과정이 실제 Chromium 창에 표시됩니다. 테스트 서버는 headless로 실행합니다.
-
-## 사용 예시
-
-1. `아이스 아메리카노 두 잔 포장해 줘`
-2. `아메리카노 한 잔으로 바꿔줘`
-3. `카카오페이로 결제해 줘`
-4. 제어 화면에서 주문 금액과 수단을 확인하고 **결제 진행** 클릭
-
-한 요청에서 최대 세 항목, 항목당 1~20잔을 지정할 수 있습니다. `아이스 아메리카노 한 잔과 따뜻한 카페라떼 한 잔 포장`처럼 메뉴별 온도와 수량을 적어주세요. 같은 옵션의 합계는 키오스크 제한인 99잔을 초과할 수 없습니다. 수정·삭제는 한 번에 한 종류를 지정합니다. `포장 눌러줘`, `처음으로 눌러줘`처럼 화면 버튼을 직접 지정하는 단일 클릭도 지원합니다.
-
-온도나 이용 방식이 필요한데 빠졌거나 대상이 모호하면 추가 입력을 요청합니다. 수정은 장바구니의 실제 행을 기준으로 수행하며, 같은 메뉴의 HOT/ICE가 함께 있다면 온도까지 지정합니다. 자동 결제 흐름은 번호 적립을 건너뛰고 최종 확인에서 대기합니다. 결제 확정은 반드시 제어 화면의 확인 버튼으로 진행합니다.
-
-**중단**은 남은 작업을 취소합니다. 이미 담은 메뉴는 유지되므로 현재 장바구니를 확인한 뒤 수정하거나 새 주문 창을 여세요. 새 주문 창은 이전 시연 창과 장바구니, 결제 확인을 초기화합니다. 키오스크 창을 직접 닫으면 제어 화면의 미리보기와 실행 가능 상태도 해제합니다. 실행 중에는 중복 명령을 받지 않습니다.
-
-## 동작 구조
-
-- `server/jev.js`: 공식 `POST https://api.typesafe.ai/v1/systemone` 연동. Choice 응답의 허용 값과 confidence 검사, 타임아웃·중단 처리.
-- `server/planner.js`: JEV가 의도와 주문 항목 수를 먼저 판단한 뒤 해당 항목의 메뉴·옵션·수량을 선택합니다. 정확히 언급된 메뉴 이름은 긴 이름을 우선 매칭해 후보와 순서를 고정하고, JEV가 그 후보 안에서 선택합니다. 장바구니 수정 대상은 새로 요청한 수량과 분리해 선택하며, 최종 계획의 유효성과 예상 장바구니는 코드가 계산합니다.
-- `server/browser.js`: DOM의 표시된 버튼·선택 상태·장바구니를 읽고 Playwright 클릭/입력. React 내부 상태나 주문 API를 직접 수정하지 않음.
-- `server/runner.js`: 주문별 작업 순서를 구성하고, 각 단계에서 JEV가 실제 화면의 행동 후보를 선택. 현재 작업 영역의 후보 중 선택이 세부 작업과 일치할 때만 실행하고 장바구니·주문번호를 별도로 검증.
-- `server/app.js`: 한 로컬 브라우저와 한 실행 작업 관리, SSE 이벤트·단계별 화면 캡처·중단·결제 확인 API.
-- `src/Control.jsx`: 텍스트 입력, 단계별 미리보기와 로그, 결제 확인 화면.
-
-키오스크 전용의 작업 순서와 검증기를 사용하는 DOM 기반 자동화입니다. 임의의 웹사이트를 자유롭게 탐색하는 범용 에이전트는 아닙니다. 화면 캡처는 로컬 제어 화면에 표시하고, JEV에는 요청 텍스트와 DOM에서 읽은 화면 정보를 보냅니다. 미리보기는 행동 전후에 갱신되며 동영상 스트림은 아닙니다.
-
-API는 `127.0.0.1`에서만 열립니다. 외부 웹 출처의 제어 요청을 거부하고, 자동화 브라우저는 해당 키오스크 출처만 접근합니다. JEV 키가 없거나 호출에 실패하면 명시적으로 중단하며 규칙 기반 모형으로 조용히 대체하지 않습니다. 세션·로그·스크린샷은 메모리에만 유지합니다.
-
-## 검증
-
-```sh
-pnpm test
-pnpm build
-pnpm test:e2e
-```
-
-단위 테스트는 JEV 요청/응답 계약, 오류·중단, 장바구니 검증을 확인합니다. E2E는 테스트 전용 JEV 응답을 주입하되, 실제 Chromium과 실제 키오스크를 실행해 텍스트 제어 화면의 주문, 옵션 수정, 적립 건너뛰기, 결제 확인, 바코드 자동 완료, 중복 실행 차단과 오래된 확인 무효화를 검증합니다. 테스트 응답은 운영 경로에서 사용할 수 없습니다. 이 테스트 통과가 실제 JEV의 한국어 판단 정확도를 보장하지는 않습니다. 실제 API 키로 대표 주문을 별도로 시연해야 합니다. QA에서는 기본 주문·수량 수정·카카오페이, 복수 메뉴 추가·수정·삭제·네이버페이, 온도 추가 질문·샷 옵션 변경·카드 결제를 실제 JEV로 검증합니다. 시연 스크립트는 각 단계의 메뉴·온도·수량·샷·가격을 독립적인 예상값과 비교합니다.
-
-```sh
-# 실제 JEV를 호출하며 API 사용량이 발생합니다. 별도 테스트 브라우저를 사용합니다.
-pnpm build
-pnpm test:live
-# 복수 메뉴 추가·수정·삭제·네이버페이 시연
-pnpm test:live --extended
-# 온도 재질문, 동일 메뉴 HOT/ICE 구분, 샷 추가·제거, 카드 결제
-pnpm test:live --options
-```
-
-`401`은 키 인증 실패, `402`는 잔액 확인, `429`는 요청 한도 초과로 안내합니다. API 키가 존재한다는 표시만으로 실제 인증 성공을 의미하지는 않습니다. 실제 실행 결과는 Git에서 제외된 `artifacts/live-order.json`, `artifacts/live-order.png`, `artifacts/live-control.png`에 남깁니다.
-
-공식 API 문서: https://docs.typesafe.ai/introduction/quickstart · https://docs.typesafe.ai/primitives/choice
-Playwright: https://playwright.dev/docs/locators
-
----
-
-# 음료 주문 키오스크
-
-React 19 + Vite 기반 카페 키오스크 프로토타입입니다.
+React + Vite 키오스크 한 화면에서 음성 주문과 터치 주문을 함께 사용합니다. 별도 제어 화면, 텍스트 주문 입력, 미리보기 창은 없습니다. 서버가 실행한 **하나의 전체화면 Chromium 키오스크**에서 음성을 받고, JEV가 행동을 판단하고, Playwright가 그 화면의 실제 버튼을 클릭합니다.
 
 ## 실행
 
-Node.js 22.12+ 환경에서:
+Node.js 22.12 이상과 pnpm이 필요합니다.
 
 ```sh
-npm install
-npm run dev
+pnpm install
+pnpm exec playwright install chromium
+cp .env.example .env # 이미 .env가 있으면 복사하지 말고 필요한 항목만 추가
+pnpm dev:agent
 ```
 
-`npm run build`로 빌드하고 `npm run preview`로 빌드 결과를 확인합니다.
+서버가 준비되면 전체화면 키오스크가 자동으로 실행됩니다. 오른쪽 아래 **음성 주문**을 누르고 마이크 권한을 허용하세요. macOS에서도 Chromium의 마이크 사용 권한이 필요합니다. 음성 기능은 서버가 띄운 이 키오스크 자체에 연결됩니다. 다른 브라우저에서 URL을 열면 터치 주문은 가능하지만 해당 탭의 음성 자동화는 연결되지 않습니다. `/control`은 `/`로 이동합니다.
 
-## 제공 흐름
+```dotenv
+TYPESAFE_API_KEY=your_typesafe_key
+ELEVENLABS_API_KEY=your_elevenlabs_key
+ELEVENLABS_VOICE_ID=your_voice_id
+ELEVENLABS_TTS_MODEL=eleven_flash_v2_5
+PORT=8787
+BROWSER_HEADLESS=false
+JEV_MIN_CONFIDENCE=0.5
+```
 
-매장/포장 → 카테고리 및 메뉴 검색 → 온도·샷·수량 선택 → 장바구니 수정/삭제 → 주문 확인 → 모의 결제 → 주문번호 → 새 주문.
+키는 `.env`에만 저장하며 Git에서 제외합니다. `VITE_` 접두사를 붙이지 마세요. ElevenLabs 키에 Speech to Text와 Text to Speech 권한을 부여하고, 계정에서 사용할 수 있는 한국어 음색의 Voice ID를 설정하세요. 환경변수를 바꾸면 서버를 다시 시작합니다. JEV와 ElevenLabs 호출에는 각 서비스 사용량이 발생합니다.
 
-- 네이티브 버튼, 접근 가능한 이름, 선택 상태와 모달 포커스 제어를 제공해 Computer Use가 화면을 탐색할 수 있습니다.
-- JEV + Playwright 텍스트 자동화는 `/control`에서 제공합니다. STT·TTS는 포함하지 않습니다.
-- 주문은 메모리에만 유지되며 새로고침 또는 새 주문 시 초기화됩니다.
-- 결제는 시뮬레이션이며 실제 주문 전송이나 청구가 없습니다.
+빌드 후 실행: `pnpm build && pnpm start`. `pnpm dev`는 터치 화면만 개발할 때 사용하는 Vite 서버입니다. 전용 키오스크를 다시 열려면 서버를 재시작하세요.
 
-## 메뉴와 이미지
+## 음성 흐름
 
-메뉴 출처: https://www.mega-mgccoffee.com/menu/?menu_category1=1&menu_category2=1 (2026-09-30 확인).
-공식 목록의 커피·티·에이드/주스·스무디/프라페·디카페인·음료 및 신메뉴를 수집했습니다. HOT/ICE 동명 상품과 카테고리 중복은 하나로 통합하고 ARIH 캔 음료와 캔/RTD 제품을 제외했습니다.
+1. 마이크 버튼을 누르면 ElevenLabs Scribe v2 Realtime이 한국어 음성을 인식합니다. 말이 끝나고 약 1.5초간 조용하면 주문을 전달합니다.
+2. 인식된 문장이 짧은 자막으로 표시되고 마이크는 닫힙니다. JEV가 메뉴·온도·수량을 판단하고 Playwright가 같은 화면을 클릭합니다.
+3. ElevenLabs TTS가 처리 결과나 추가 질문을 읽습니다. 안내가 끝나면 다시 듣습니다. 안내 중에는 마이크가 꺼져 있어 자체 음성의 재입력을 막습니다.
+4. 결제 요청은 번호 적립을 건너뛰고 결제수단을 선택한 뒤 금액을 읽고 확인합니다. “네, 진행해 주세요”로 **모의 결제**를 확정하거나 “아니요”로 취소할 수 있습니다. 실제 결제는 수행하지 않습니다.
+5. 주문 완료 또는 종료 버튼을 누르면 음성 세션이 종료됩니다. 45초 동안 발화가 없거나 연결 오류가 나면 마이크를 끄고 재시도를 안내합니다. 이미 담긴 주문은 유지합니다.
 
-`src/menu.json`에 원래 이름(sourceName), 메뉴 이미지 출처(sourceImage), 표시 이름, 온도, 분류가 기록되어 있습니다. 109종의 공식 제품 사진과 HOT/ICE별 사진을 `public/images/drinks`에 저장해 화면에서 사용합니다. 별도의 브랜드 헤더·로고는 넣지 않았으며, 원본 컵 사진에 인쇄된 로고는 사진 그대로 유지됩니다. 브랜드명 포함 메뉴는 일반 명칭으로 표시합니다.
+예: “아이스 아메리카노 두 잔 포장해 줘” → “한 잔으로 바꿔줘” → “카카오페이로 결제해 줘” → “네”. 온도 등이 빠지면 질문을 듣고 이어서 답할 수 있습니다. 한 번에 세 종류, 항목당 1~20잔을 요청할 수 있습니다. 같은 메뉴의 HOT/ICE가 함께 있으면 수정할 온도를 지정하세요.
 
-가격, 샷 추가 옵션, 설명 문구는 데모용입니다. 공식 가격·알레르기·영양정보를 나타내지 않습니다. 시작 화면은 매장/포장 선택 버튼 두 개로 구성되어 있습니다. 메뉴는 6개씩 페이지로 탐색하며 주문 내역은 항상 화면에 표시됩니다. Google Fonts를 불러오며 오프라인에서는 시스템 폰트를 사용합니다.
+STT 초기 구현은 **Scribe v2 Realtime**, TTS는 **Eleven Flash v2.5**입니다. 다른 STT를 선택하면 `src/speech.js`의 `listen` 인터페이스와 서버의 토큰 발급 부분을 교체하면 됩니다.
 
-## 파일
+## 구조
 
-- `src/main.jsx`: 화면과 주문 흐름
-- `src/style.css`: 반응형 디자인
-- `src/menu.json`: 메뉴 데이터
-- `public/images/drinks/`: 공식 메뉴 사진
+- `src/VoiceOrder.jsx`: 한 화면의 마이크 버튼, 짧은 상태 자막, 듣기/주문/말하기/종료 상태 관리. 모달 안에서도 버튼을 누를 수 있도록 렌더링 위치를 이동합니다.
+- `src/speech.js`: ElevenLabs 공식 SDK의 마이크 스트리밍과 TTS 재생. 중단 시 마이크, 소켓, 오디오를 해제합니다.
+- `server/speech.js`: 서버 전용 API 키로 일회용 STT 토큰과 TTS 오디오를 발급합니다.
+- `server/app.js`: 같은 키오스크 페이지에만 노출한 Playwright binding으로 음성 요청을 받습니다. 다른 탭/프레임은 주문을 실행할 수 없습니다. 기존 HTTP 텍스트 주문 API는 제거했습니다.
+- `server/planner.js`: 주문 항목 수와 수량을 분리하고, 실제 메뉴 후보와 장바구니를 기준으로 JEV 선택을 검증합니다.
+- `server/runner.js`: JEV의 행동 선택과 작업 대상을 비교하고, 카테고리·페이지·메뉴·옵션을 실제 클릭합니다. DOM 변경 또는 주문 불일치 시 중단합니다. 음성 결제 동의 후에도 화면이 바뀌었으면 결제하지 않습니다.
+- `server/browser.js`: 전체화면 키오스크 실행, DOM 관찰, 클릭, 변경 검증. React 상태나 장바구니 API를 직접 수정하지 않습니다.
 
-## 모의 결제
+## QA
 
-주문 확인 → 결제하기 → 카드 / 페이코 / 삼성페이 / 카카오페이 / 네이버페이 / 제로페이 선택 → 모의 결제 → 주문번호 표시 순서로 진행합니다. 결제수단 미선택 시 완료 버튼이 비활성화됩니다. 돌아가기는 주문을 유지하고, 주문 완료 후 처음으로 이동하면 주문과 선택한 결제수단이 초기화됩니다.
+```sh
+pnpm build
+pnpm test
+pnpm test:e2e
+# 실제 JEV 사용량이 발생하는, 인식 이후 주문 처리 확인
+pnpm test:live
+pnpm test:live --extended
+pnpm test:live --options
+```
 
-PG/SDK, 실제 승인 요청, 카드정보 입력, 실제 QR 결제는 연결하지 않았습니다. 로고는 `public/images/payments`에 저장했으며 원본 출처는 해당 폴더의 `SOURCES.md`에 기록했습니다.
+자동 E2E는 실제 Chromium, 마이크 테스트 장치, 공식 STT SDK의 WebSocket 경로, 오디오 재생, 키오스크 클릭을 사용합니다. 외부 STT 인식 결과·TTS 오디오·JEV 판단만 테스트 응답으로 교체합니다. 단일 창 유지, 음성 결제 동의/거부, 중단, 권한 거부, 인증 설정 누락, 오래된 결제 무효화를 확인합니다. 테스트 응답은 운영 코드에 포함되지 않습니다.
 
-번호 적립 화면이 주문 확인과 결제수단 선택 사이에 표시됩니다. 010으로 시작하는 11자리 번호 입력 또는 건너뛰기를 지원하며, 번호는 다음 단계에서 지워지고 서버에 전송·저장하지 않습니다. 카카오페이·네이버페이·페이코·제로페이는 바코드 제시 안내 후 3초 뒤 모의 주문 완료로 이동합니다. 취소하면 자동 완료 타이머도 해제됩니다. 메뉴 카드의 + 장식은 제거했으며 카드 전체를 눌러 옵션을 선택합니다.
+`test:live`는 인식 완료 문장을 내부 binding에 주입하여 실제 JEV와 Playwright를 검사하는 개발 스크립트입니다. 사용자용 텍스트 입력 기능이 아니며, STT 인식률이나 TTS 음질을 검증하지 않습니다. 실제 음성 품질은 ElevenLabs 키와 Voice ID 설정 후 매장 소음 환경에서 마이크·스피커로 확인해야 합니다. 테스트 캡처는 Git에서 제외된 `artifacts/`에 저장합니다.
+
+공식 문서: [Scribe SDK](https://elevenlabs.io/docs/eleven-api/resources/libraries/scribe-stt/javascript-scribe) · [ElevenLabs TTS](https://elevenlabs.io/docs/api-reference/text-to-speech/convert) · [JEV](https://docs.typesafe.ai/introduction/quickstart) · [Playwright](https://playwright.dev/docs/locators)
