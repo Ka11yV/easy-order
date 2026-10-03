@@ -82,7 +82,15 @@ export default function VoiceOrder() {
       if (!live(current)) return;
       if (!config.configured) throw new Error('JEV API 키를 설정해 주세요.');
       if (!config.speechConfigured) throw new Error('ElevenLabs API 키와 Voice ID 설정이 필요합니다.');
-      await hear(current);
+      const greeting = await callVoice('begin');
+      if (!live(current)) return;
+      if (greeting.message) {
+        setPhase('speaking'); setMessage(greeting.message);
+        const audio = await callVoice('speak', { text: greeting.message });
+        if (!live(current)) return;
+        await playSpeech(audio, current.signal);
+      }
+      if (live(current)) await hear(current);
     } catch (error) { fail(current, error); }
   }
   const active = !['idle', 'error'].includes(phase);

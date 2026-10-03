@@ -20,6 +20,19 @@ server.on('request', service.app);
 const utterance = text => service.browser.page.evaluate(text => window.kioskVoice('utterance', { text }), text);
 try {
   await service.start();
+  if (process.argv.includes('--points')) {
+    const greeting = await service.browser.page.evaluate(() => window.kioskVoice('begin'));
+    assert.equal(greeting.message, '드시고 가시나요? 아니면 포장하시나요?');
+    for (const text of ['포장할게요', '아이스 아메리카노 두 잔', '카드로 결제해줘', '네 적립할게요', '01012345678', '네 이 번호로 적립해주세요']) {
+      const result = await utterance(text);
+      assert.ok(!result.error, result.error);
+      console.log(result.message);
+    }
+    assert.equal((await service.browser.snapshot()).screen, '결제수단 선택');
+    assert.equal(service.state().confirmation.method, '카드');
+    assert.ok(!JSON.stringify(service.state()).includes('01012345678'));
+    console.log('Live JEV verified: initial mode reply and points opt-in, no payment submitted');
+  } else {
   const options = process.argv.includes('--options');
   const commands = options ? ['아메리카노 한 잔 포장해 줘', '아이스로 해줘', '따뜻한 아메리카노 한 잔 샷 추가해서 담아줘', '따뜻한 아메리카노 샷 빼줘', '따뜻한 아메리카노 삭제해줘', '카드로 결제해줘'] : process.argv.includes('--extended')
     ? ['따뜻한 카페라떼 한 잔과 아이스 아메리카노 두 잔 포장해 줘', '아이스 아메리카노를 한 잔으로 바꿔줘', '따뜻한 카페라떼를 삭제해 줘', '네이버페이로 결제해 줘']
@@ -32,6 +45,7 @@ try {
     : [[americano(2)], [americano(1)], [americano(1)]];
   for (const [index, text] of commands.entries()) {
     const result = await utterance(text);
+    if (result.points) { const skipped = await utterance('적립은 건너뛰기'); if (skipped.error) throw Error(skipped.error); }
     if (result.error && !(options && index === 0 && result.code === 'CLARIFY')) throw Error(result.error);
     assert.deepEqual((await service.browser.snapshot()).cart, expected[index], `Wrong cart after: ${text}`);
     console.log(`${service.state().status}: ${text} (장바구니 일치)`);
@@ -44,6 +58,7 @@ try {
   await writeFile('artifacts/live-order.json', JSON.stringify({ commands, screen: snapshot.screen, cart: snapshot.cart, receipt: snapshot.receipt, orderNumber: snapshot.orderNumber }, null, 2));
   await service.browser.page.screenshot({ path: 'artifacts/live-order.png' });
   console.log(`Live JEV verified: order ${snapshot.orderNumber}, ${snapshot.receipt}`);
+  }
 } finally {
   await service.close(); server.closeAllConnections(); await new Promise(resolve => server.close(resolve));
 }

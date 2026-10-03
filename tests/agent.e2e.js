@@ -14,6 +14,7 @@ class FixtureJev {
     signal?.throwIfAborted(); this.calls++;
     if (this.blockNext) { this.blockNext = false; await delay(1000, null, { signal }); }
     let answers = {};
+    if (questions.points) return { answers: { points: state.userRequest.includes('아니') || state.userRequest.includes('건너') ? 'no' : 'yes' }, confidences: { points: 1 } };
     if (questions.confirmation) return { answers: { confirmation: state.userRequest.includes('아니') ? 'cancel' : state.userRequest.includes('글쎄') ? 'unclear' : 'confirm' }, confidences: { confirmation: 1 } };
     if (questions.intent || questions.menu1 || questions.line) {
       answers = Object.fromEntries(Object.keys(questions).map(key => [key, key.startsWith('menu') ? 'none' : key.startsWith('quantity') || key.startsWith('temperature') || key.startsWith('shot') ? 'unspecified' : 'no']));
@@ -52,7 +53,7 @@ async function setup(t, { speechConfigured = true, ttsFails = false } = {}) {
   const client = new FixtureJev();
   const spoken = [];
   const speech = { configured: speechConfigured, token: async () => ({ token: 'test-single-use-token' }),
-    synthesize: async text => { if (ttsFails) throw new Error('fixture provider failure'); spoken.push(text); return { audio: silentWav(), mime: 'audio/wav' }; } };
+    synthesize: async text => { if (ttsFails && !text.includes('드시고 가시나요')) throw new Error('fixture provider failure'); spoken.push(text); return { audio: silentWav(), mime: 'audio/wav' }; } };
   const service = createAgentApp({ origin, client, speech, headless: true, browserOptions: { launchOptions: {
     args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', '--autoplay-policy=no-user-gesture-required'],
   } } });
@@ -103,6 +104,8 @@ test('one kiosk: microphone → STT → JEV clicks → TTS → spoken payment co
   assert.equal((await say('아메리카노 하나로 수정')).phase, 'listening');
   assert.equal((await browser.snapshot()).cart[0].quantity, 1);
   assert.equal((await say('카카오페이 결제')).phase, 'listening');
+  assert.equal((await browser.snapshot()).screen, '번호 적립');
+  assert.equal((await say('아니요')).phase, 'listening');
   assert.equal((await browser.snapshot()).screen, '결제수단 선택');
   assert.equal(await page.locator('dialog[open] .voice-dock').count(), 1);
   assert.equal(state().confirmation.total, 2000);
@@ -110,7 +113,9 @@ test('one kiosk: microphone → STT → JEV clicks → TTS → spoken payment co
   assert.equal((await browser.snapshot()).orderNumber, '101');
   assert.equal(browser.context.pages().length, 1);
   assert.ok(await page.evaluate(() => window.__testMediaTracks.every(track => track.readyState === 'ended')));
-  assert.equal(spoken.length, 4); assert.equal(sockets.length, 4); assert.ok(chunks.length > 0);
+  assert.equal(spoken.length, 6); assert.equal(sockets.length, 5);
+  assert.equal(spoken[0], '드시고 가시나요? 아니면 포장하시나요?');
+  assert.ok(spoken.some(text => text.includes('두 잔'))); assert.ok(chunks.length > 0);
   assert.deepEqual(errors, []);
   await page.screenshot({ path: 'artifacts/voice-complete.png' });
 });
@@ -133,10 +138,12 @@ test('voice confirmation supports refusal and ambiguity, rejects changed payment
   const { browser, call, state } = await setup(t);
   await call('utterance', { text: '아이스 아메리카노 두 잔 포장' });
   await call('utterance', { text: '카카오페이 결제' });
+  await call('utterance', { text: '건너뛰기' });
   assert.equal((await call('utterance', { text: '글쎄요' })).code, 'CLARIFY');
   assert.ok(state().confirmation);
   await call('utterance', { text: '아니요' }); assert.equal(state().confirmation, null);
   await call('utterance', { text: '카카오페이 결제' });
+  await call('utterance', { text: '건너뛰기' });
   await browser.page.getByRole('button', { name: '돌아가기', exact: true }).click();
   assert.equal((await call('utterance', { text: '네' })).code, 'STALE');
   assert.equal((await browser.snapshot()).screen, '번호 적립');
@@ -170,6 +177,7 @@ test('voice stop remains clickable inside a modal and ends microphone capture', 
   await page.getByRole('button', { name: '음성 주문 시작' }).click();
   await say('아이스 아메리카노 두 잔 포장');
   await say('카카오페이 결제');
+  await say('아니요');
   await page.locator('dialog[open]').getByRole('button', { name: '음성 주문 종료' }).click();
   await page.locator('.voice-dock[data-phase="idle"]').waitFor();
   assert.equal(state().confirmation, null);
@@ -217,4 +225,30 @@ test('menu scrolls to offscreen cards and resets scroll when switching categorie
   await page.getByRole('button', { name: '닫기', exact: true }).click();
   await page.getByRole('button', { name: '커피', exact: true }).click();
   await page.waitForFunction(() => document.querySelector('.product-grid').scrollTop === 0);
+});
+
+test('points opt-in collects and confirms a phone number before payment, with no number in history', { timeout: 30000 }, async t => {
+  const { call, browser, state } = await setup(t);
+  await call('utterance', { text: '아이스 아메리카노 두 잔 포장' });
+  const checkout = await call('utterance', { text: '카카오페이 결제' });
+  assert.equal(checkout.message, '번호 적립하시겠어요?');
+  assert.equal((await browser.snapshot()).screen, '번호 적립');
+  assert.equal(state().confirmation, null);
+  assert.match((await call('utterance', { text: '네' })).message, /휴대폰 번호/);
+  await call('utterance', { text: '010123' });
+  assert.equal((await browser.snapshot()).screen, '번호 적립');
+  const number = '01012345678';
+  const entered = await call('utterance', { text: number });
+  assert.match(entered.message, /이 번호로 적립/);
+  assert.equal(await browser.page.getByRole('textbox', { name: '휴대폰 번호' }).inputValue(), number);
+  assert.equal(state().confirmation, null);
+  const corrected = '01087654321';
+  assert.match((await call('utterance', { text: corrected })).message, /이 번호로 적립/);
+  assert.equal(await browser.page.getByRole('textbox', { name: '휴대폰 번호' }).inputValue(), corrected);
+  const approved = await call('utterance', { text: '네' });
+  assert.equal(approved.confirmation.method, '카카오페이');
+  assert.ok(state().history.some(event => event.target === '적립하고 결제하기'));
+  assert.ok(!JSON.stringify(state()).includes(number));
+  assert.ok(!JSON.stringify(state()).includes(corrected));
+  assert.equal(await browser.page.locator('.order-number').count(), 0);
 });

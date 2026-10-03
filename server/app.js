@@ -12,7 +12,7 @@ export function createAgentApp({ origin, client = new JevClient(), speech = new 
   const resetSession = () => {
     active?.controller.abort(new AgentError('화면 연결이 종료되었습니다.', 'CLOSED'));
     for (const controller of speechRequests) controller.abort();
-    runner.pending = null; runner.clarification = null; lastResult = null;
+    runner.pending = null; runner.clarification = null; runner.points = null; lastResult = null;
   };
   const browser = new KioskBrowser({ url: `${origin}/`, headless, ...browserOptions, onClosed: resetSession, onRequest: request });
   const runner = new OrderRunner({ browser, client, emit });
@@ -40,10 +40,11 @@ export function createAgentApp({ origin, client = new JevClient(), speech = new 
     if (typeof text !== 'string' || !text.trim() || text.length > 1000) throw new AgentError('주문을 짧게 다시 말씀해 주세요.', 'INPUT');
     const controller = new AbortController();
     const job = { controller }; active = job; status = 'running'; lastResult = null;
-    emit({ type: 'utterance', message: text });
+    emit({ type: 'utterance', message: runner.points ? '[적립 질문 응답]' : text });
     const timer = setTimeout(() => controller.abort(new AgentError('주문 처리 시간이 초과되었습니다.', 'TIMEOUT')), 180000);
     job.promise = (async () => {
       const signal = controller.signal;
+      if (runner.points) return runner.handlePoints(text, signal);
       if (runner.pending) {
         const { answers } = await client.decide({ userRequest: text, confirmation: runner.pending }, {
           confirmation: choice('Does this utterance explicitly confirm the pending simulated payment? Choose change for a new order/edit request, cancel for refusal, unclear for uncertainty. Never infer consent from silence.', {
@@ -71,6 +72,12 @@ export function createAgentApp({ origin, client = new JevClient(), speech = new 
   async function request(operation, payload) {
     try {
       if (operation === 'config') return { configured: client.configured, speechConfigured: speech.configured, stt: 'scribe_v2_realtime' };
+      if (operation === 'begin') {
+        if (active) throw new AgentError('주문을 처리하고 있습니다.', 'BUSY');
+        const snapshot = await browser.snapshot();
+        lastResult = snapshot.screen === '매장 또는 포장 선택' ? '드시고 가시나요? 아니면 포장하시나요?' : runner.points ? '번호 적립을 진행하시겠어요?' : null;
+        return { message: lastResult };
+      }
       if (operation === 'stop') return await stop();
       if (operation === 'utterance') return await utterance(payload?.text);
       if (operation === 'token' || operation === 'speak') {

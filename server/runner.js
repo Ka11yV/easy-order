@@ -1,8 +1,9 @@
+import { cupCount, phoneNumber } from './korean.js';
 import { AgentError, choice } from './jev.js';
 import { planCommand, expectedCart, cartMatches, menu } from './planner.js';
 
 export class OrderRunner {
-  constructor({ browser, client, emit }) { this.browser = browser; this.client = client; this.emit = emit; this.pending = null; this.clarification = null; }
+  constructor({ browser, client, emit }) { this.browser = browser; this.client = client; this.emit = emit; this.pending = null; this.clarification = null; this.points = null; }
   log(message, extra = {}) { this.emit({ type: 'step', message, ...extra }); }
   async step(instruction, locator, signal, { value } = {}) {
     signal.throwIfAborted();
@@ -62,7 +63,7 @@ export class OrderRunner {
     await this.step(`옵션 설정이 완료되었습니다. "${saveLabel}" 버튼을 눌러 ${item.name} ${item.quantity}잔을 저장하세요.`, save, signal);
   }
   async run(text, signal) {
-    this.actions = 0; this.pending = null;
+    this.actions = 0; this.pending = null; this.points = null;
     const before = await this.browser.snapshot();
     let combined = text;
     const previous = this.clarification;
@@ -96,7 +97,7 @@ export class OrderRunner {
       await this.closeDialog(signal);
     }
     await this.setMode(plan.mode, signal);
-    if (plan.intent === 'mode') return { message: `${plan.mode}으로 변경했습니다.` };
+    if (plan.intent === 'mode') return { message: `${plan.mode === '매장' ? '매장에서 드시는 것으로' : '포장으로'} 준비하겠습니다. 주문하실 음료를 말씀해 주세요.` };
     if (plan.intent === 'remove') await this.step(`${plan.line.name} ${plan.line.temperature} 메뉴를 삭제하세요.`, this.cartLine(plan.line).getByRole('button', { name: `${plan.line.name} 삭제`, exact: true }), signal);
     if (plan.intent === 'edit') {
       await this.step(`${plan.line.name} ${plan.line.temperature}의 옵션 변경을 여세요.`, this.cartLine(plan.line).getByRole('button', { name: `${plan.line.name} 옵션 수정`, exact: true }), signal);
@@ -116,7 +117,7 @@ export class OrderRunner {
     const after = await this.browser.snapshot();
     if (!cartMatches(after.cart, expected)) throw new AgentError('화면의 주문 내역이 요청과 일치하지 않습니다. 현재 장바구니를 확인해 주세요.', 'VERIFY');
     if (plan.checkout) return this.preparePayment(plan.payment, signal);
-    const summary = after.cart.map(item => `${item.temperature === 'HOT' ? '따뜻한' : '아이스'} ${item.name} ${item.quantity}잔${item.shot ? ', 샷 추가' : ''}`).join(', ');
+    const summary = after.cart.map(item => `${item.temperature === 'HOT' ? '따뜻한' : '아이스'} ${item.name} ${cupCount(item.quantity)}${item.shot ? ', 샷 추가' : ''}`).join(', ');
     return { message: after.cart.length ? `주문 내역은 ${summary}입니다. 추가 주문이나 결제 방법을 말씀해 주세요.` : '메뉴를 삭제했습니다. 다른 메뉴를 말씀해 주세요.', cart: after.cart };
   }
   async preparePayment(method, signal) {
@@ -124,7 +125,45 @@ export class OrderRunner {
     if (!snap.cart.length) throw new AgentError('먼저 메뉴를 담아주세요.', 'CLARIFY');
     await this.click('주문하기', signal);
     await this.click('결제하기', signal);
-    await this.click('건너뛰기', signal);
+    this.points = { method, stage: 'choice', fingerprint: (await this.browser.snapshot()).fingerprint };
+    return { message: '번호 적립하시겠어요?', points: true };
+  }
+  async handlePoints(text, signal) {
+    this.actions = 0;
+    const pending = this.points;
+    const snap = await this.browser.snapshot();
+    if (snap.screen !== '번호 적립' || snap.fingerprint !== pending.fingerprint) {
+      this.points = null;
+      throw new AgentError('적립 화면이 변경되었습니다. 결제를 다시 요청해 주세요.', 'STALE');
+    }
+    const number = phoneNumber(text);
+    if (number) {
+      // Only the local input receives the phone number; do not include it in decision prompts or TTS.
+      await this.browser.page.getByRole('textbox', { name: '휴대폰 번호', exact: true }).fill(number);
+      signal.throwIfAborted();
+      this.points = { ...pending, stage: 'confirm', number, fingerprint: (await this.browser.snapshot()).fingerprint };
+      return { message: '화면의 휴대폰 번호를 확인해 주세요. 이 번호로 적립할까요?', points: true };
+    }
+    const { answers } = await this.client.decide({ userRequest: /\d{3}/.test(text) ? '[전화번호 형식 응답]' : text, stage: pending.stage }, {
+      points: choice('Interpret the response to the points question. In choice stage, yes requests phone entry; in confirm stage, yes confirms the displayed phone. No/skip means skip points only, NOT payment consent. Choose change for a new order request, cancel for cancelling checkout, unclear otherwise.', {
+        yes: '네 / 적립할게요 / 번호 확인', no: '아니요 / 적립 안 함 / 건너뛰기', change: '다른 주문 또는 주문 변경', cancel: '결제 취소', unclear: '불명확 / 잘못된 번호 / 번호 수정 요청',
+      }),
+    }, signal);
+    if (answers.points === 'change') { this.points = null; return this.run(text, signal); }
+    if (answers.points === 'cancel') { this.points = null; await this.click('닫기', signal); return { message: '결제를 취소했습니다. 담긴 주문은 그대로입니다.' }; }
+    if (answers.points === 'no') { await this.click('건너뛰기', signal); this.points = null; return this.selectPayment(pending.method, signal); }
+    if (answers.points === 'yes' && pending.stage === 'confirm') {
+      if (await this.browser.page.getByRole('textbox', { name: '휴대폰 번호', exact: true }).inputValue() !== pending.number) {
+        this.points = { ...pending, stage: 'phone', number: undefined };
+        throw new AgentError('번호가 바뀌었습니다. 적립할 휴대폰 번호를 다시 말씀해 주세요.', 'CLARIFY');
+      }
+      await this.click('적립하고 결제하기', signal); this.points = null;
+      return this.selectPayment(pending.method, signal);
+    }
+    this.points = { ...pending, stage: 'phone', number: undefined };
+    return { message: '적립할 휴대폰 번호 열한 자리를 말씀해 주세요. 원하지 않으시면 건너뛰기라고 말씀해 주세요.', points: true };
+  }
+  async selectPayment(method, signal) {
     await this.click(method, signal);
     const selected = await this.browser.snapshot();
     this.pending = { fingerprint: selected.fingerprint, cart: selected.cart, mode: selected.mode, method,
@@ -163,7 +202,7 @@ export class OrderRunner {
     return { message: `“${selected.name}” 버튼을 눌렀습니다.` };
   }
   async stop() {
-    this.pending = null; this.clarification = null;
+    this.pending = null; this.clarification = null; this.points = null;
     // If a simulated barcode timer has already started, cancel through the UI too.
     if (this.browser.ready && (await this.browser.snapshot()).screen === '바코드 제시') {
       await this.browser.page.getByRole('button', { name: '취소', exact: true }).click();
