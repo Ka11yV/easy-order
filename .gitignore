@@ -8,3 +8,5 @@ artifacts/
 test-results/
 playwright-report/
 .browser-profile/
+
+.cache/
