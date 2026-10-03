@@ -24,5 +24,6 @@ http.listen(port, '127.0.0.1', async () => {
 });
 http.on('error', error => { console.error(`서버를 열 수 없습니다: ${error.code}`); process.exitCode = 1; });
 for (const event of ['SIGINT', 'SIGTERM']) process.on(event, async () => {
-  await service.close(); await vite?.close(); http.close(); process.exit(0);
+  // The browser may already be closing when the server receives its shutdown signal.
+  await service.close().catch(() => {}); await vite?.close(); http.close(); process.exit(0);
 });

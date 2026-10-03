@@ -84,5 +84,5 @@ export function createAgentApp({ origin, client = new JevClient(), speech = new 
       return { error: error instanceof AgentError ? error.message : '음성 주문 연결을 확인해 주세요.', code: error.code || 'INTERNAL' };
     }
   }
-  return { app, browser, runner, state, start: () => browser.start(), close: async () => { await stop(); await browser.close(); } };
+  return { app, browser, runner, state, start: () => browser.start(), close: async () => { try { await stop(); } finally { await browser.close(); } } };
 }
