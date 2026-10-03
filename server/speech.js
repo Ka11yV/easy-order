@@ -16,7 +16,17 @@ export class ElevenSpeech {
         body: body ? JSON.stringify(body) : undefined,
         signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(20000)]) : AbortSignal.timeout(20000),
       });
-      if (!response.ok) throw new AgentError(({ 401: 'ElevenLabs API 키를 확인해 주세요.', 403: 'ElevenLabs 키 권한과 Voice ID를 확인해 주세요.', 429: '음성 서비스 요청 한도를 초과했습니다. 잠시 후 다시 시도해 주세요.' })[response.status] || '음성 서비스에 연결하지 못했습니다.', 'SPEECH_PROVIDER');
+      if (!response.ok) {
+        // Map known provider codes only; never surface raw responses containing credentials or account data.
+        const data = await response.json?.().catch(() => ({})) || {};
+        const codes = [data.detail?.code, data.detail?.status];
+        if (codes.includes('paid_plan_required')) throw new AgentError('선택한 ElevenLabs 음성은 현재 무료 계정에서 API로 사용할 수 없습니다. 사용 가능한 기본 음성으로 바꾸거나 플랜을 확인해 주세요.', 'SPEECH_VOICE_PLAN');
+        if (codes.includes('api_key_id_used_as_api_key')) throw new AgentError('ElevenLabs 키 ID가 입력되어 있습니다. 키 생성 시 표시된 실제 비밀 키로 교체해 주세요.', 'SPEECH_KEY_ID');
+        if (codes.includes('quota_exceeded')) throw new AgentError('ElevenLabs 음성 사용량을 모두 소진했습니다. 잔여 크레딧을 확인해 주세요.', 'SPEECH_QUOTA');
+        const stage = path.startsWith('text-to-speech/') ? '음성 안내(TTS)' : '음성 인식(STT)';
+        const message = ({ 401: 'ElevenLabs API 키를 확인해 주세요.', 402: 'ElevenLabs 플랜과 잔여 크레딧을 확인해 주세요.', 403: 'ElevenLabs 키 권한과 Voice ID를 확인해 주세요.', 404: 'ElevenLabs Voice ID와 사용 가능 여부를 확인해 주세요.', 429: '음성 서비스 요청 한도를 초과했습니다. 잠시 후 다시 시도해 주세요.' })[response.status];
+        throw new AgentError(message || `${stage} 요청에 실패했습니다. (HTTP ${response.status})`, 'SPEECH_PROVIDER');
+      }
       return response;
     } catch (error) {
       if (signal?.aborted) throw signal.reason;
