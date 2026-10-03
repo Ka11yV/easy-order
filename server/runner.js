@@ -64,11 +64,27 @@ export class OrderRunner {
   async run(text, signal) {
     this.actions = 0; this.pending = null;
     const before = await this.browser.snapshot();
-    const combined = this.clarification ? `${this.clarification}\n추가 답변: ${text}` : text;
+    let combined = text;
+    const previous = this.clarification;
+    this.clarification = null;
+    if (previous) {
+      const { answers } = await this.client.decide({ previousRequest: previous.request, pendingQuestion: previous.question, userRequest: text }, {
+        relation: choice('Does the CURRENT utterance answer the pending question, replace the previous request with a new order/topic, or cancel it? A different drink or a standalone new order is replacement. Short answers like 아이스로, 두 잔, 포장 answer the pending question. Never merge unrelated orders.', {
+          answer: 'Answer or correct the pending order details', replacement: 'New order, different menu, new question or independent command', cancel: 'Cancel the pending request without changing the existing cart',
+        }),
+      }, signal);
+      if (answers.relation === 'cancel') return { message: '추가 주문 요청을 취소했습니다. 담긴 주문은 그대로입니다.' };
+      if (answers.relation === 'answer') combined = `${previous.request}\n추가 답변: ${text}`;
+    }
     this.log('JEV가 주문 요청을 해석하고 있습니다.', { phase: 'planning' });
     let plan;
     try { plan = await planCommand(this.client, combined, before, signal); }
-    catch (error) { if (error.code === 'CLARIFY' || error.code === 'UNCERTAIN') this.clarification = combined.slice(-1500); throw error; }
+    catch (error) {
+      // Availability answers are complete. Only a concrete missing-field question retains context.
+      if (error.code === 'MENU_INFO') return { message: error.message };
+      if (error.awaitsAnswer) this.clarification = { request: combined.slice(-1500), question: error.message };
+      throw error;
+    }
     this.clarification = null;
     const expected = expectedCart(before.cart, plan);
     if (plan.intent === 'ui') return this.manualInstruction(text, signal);

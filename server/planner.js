@@ -3,6 +3,7 @@ import { AgentError, choice } from './jev.js';
 
 export const menu = JSON.parse(readFileSync(new URL('../src/menu.json', import.meta.url), 'utf8'));
 export const paymentNames = ['카드', '페이코', '삼성페이', '카카오페이', '네이버페이', '제로페이'];
+const ask = message => Object.assign(new AgentError(message, 'CLARIFY'), { awaitsAnswer: true });
 const named = values => Object.fromEntries(values.map(value => [value, value]));
 const quantities = { unspecified: '수량을 말하지 않음', ...Object.fromEntries(Array.from({ length: 20 }, (_, i) => [String(i + 1), `${i + 1}잔`])), unsupported: '20잔 초과 또는 범위를 알 수 없음' };
 const menuChoices = { none: '해당 순서의 메뉴가 없음', ambiguous: '여러 메뉴 중 어느 것인지 불명확함. 예: 라떼', ...Object.fromEntries(menu.map(item => [String(item.id), `${item.name}${item.name === '아메리카노' ? ' (아아=아이스 아메리카노, 뜨아=따뜻한 아메리카노)' : ''}`])) };
@@ -26,15 +27,15 @@ export function menuMentions(text) {
 
 export async function planCommand(client, text, snapshot, signal) {
   const questions = {
-    intent: choice('What operation does the CURRENT user request ask for? A drink already existing in the cart does not imply editing it. 담아줘/주문해줘 asks to ADD a new drink. A shot option attached to a new drink order is part of ADD, not an edit.', {
+    intent: choice('What operation does the complete userRequest ask for? If it contains 추가 답변, those lines fill missing details of the ORIGINAL pending request. Do not treat a short temperature/quantity answer as a standalone operation. A drink already existing in the cart does not imply editing it. 담아줘/주문해줘 asks to ADD a new drink. A shot option attached to a new drink order is part of ADD, not an edit.', {
       add: 'Add a NEW drink, even when its name already exists in cart. 담아줘, 주문해줘, 한 잔 더. Example: 따뜻한 아메리카노 한 잔 샷 추가해서 담아줘 adds a NEW HOT drink with an extra shot.', edit: 'Modify an EXISTING cart line: 바꿔줘, 줄여줘, 수정해줘, or a standalone 샷 빼줘/샷 추가해줘 without ordering a new drink. Not a new drink request ending in 담아줘.', remove: '기존 장바구니 메뉴 한 종류 삭제',
       checkout: '현재 주문의 결제 진행', mode: '매장/포장만 변경', ui: '화면의 특정 버튼 클릭 또는 화면 이동', unknown: '해석 불가/키오스크와 무관',
     }),
     mode: choice('명시한 이용 방식은? 말하지 않았으면 unspecified.', { 매장: '매장/먹고 갈게/여기서', 포장: '포장/테이크아웃/가지고 갈게', unspecified: '언급 없음' }),
     payment: choice('명시한 결제수단은?', { ...named(paymentNames), unspecified: '언급 없음' }),
     checkout: choice('메뉴를 담은 뒤 이번 요청 안에서 결제도 하라고 명시했는가?', { yes: '결제까지 명시적으로 요청', no: '담기만 요청 또는 결제 언급 없음' }),
-    item_count: choice('새로 추가할 서로 다른 주문 항목의 개수는? 잔 수가 아니다. 아메리카노 두 잔은 1항목. 아메리카노와 라떼는 2항목. 같은 메뉴의 HOT와 ICE는 서로 다른 항목.', {
-      '0': '새로 추가하는 메뉴 없음 (수정/삭제/결제/버튼 조작)', '1': '한 종류 주문: 아메리카노 두 잔, 아아 3잔 등',
+    item_count: choice('새로 추가할 서로 다른 주문 항목의 개수는? 추가 답변이 있으면 원래 주문의 메뉴 개수를 세고, 짧은 추가 답변만 따로 해석하지 않는다. 잔 수가 아니다. 아메리카노 두 잔은 1항목. 아메리카노와 라떼는 2항목. 같은 메뉴의 HOT와 ICE는 서로 다른 항목.', {
+      '1': '한 종류 주문: 아메리카노 두 잔, 아아 3잔 등',
       '2': '두 종류 주문: 아메리카노 한 잔과 라떼 한 잔 등', '3': '세 종류 주문', overflow: '네 종류 이상 주문',
     }),
 
@@ -86,11 +87,11 @@ export async function planCommand(client, text, snapshot, signal) {
       if (!product) throw new AgentError('정확한 메뉴명을 말씀해 주세요. 예: 카페라떼, 바닐라라떼.', 'CLARIFY');
       const rawTemp = a[`temperature${i}`];
       const temperature = rawTemp === 'unspecified' ? plan.line?.temperature || (product.temperatures.length === 1 ? product.temperatures[0] : null) : rawTemp;
-      if (!temperature) throw new AgentError(`${product.name}는 아이스로 할까요, 따뜻하게 할까요?`, 'CLARIFY');
-      if (!product.temperatures.includes(temperature)) throw new AgentError(`${product.name}는 ${product.temperatures.join('/')}만 가능합니다.`, 'CLARIFY');
+      if (!temperature) throw ask(`${product.name}는 아이스로 할까요, 따뜻하게 할까요?`);
+      if (!product.temperatures.includes(temperature)) throw new AgentError(`${product.name}는 ${product.temperatures.map(t => t === 'ICE' ? '아이스' : '따뜻한 음료').join('/')}만 가능합니다. 다른 주문을 말씀해 주세요.`, 'MENU_INFO');
       const q = a[`quantity${i}`];
       if (q === 'unsupported') throw new AgentError('한 번에 1~20잔으로 말씀해 주세요.', 'CLARIFY');
-      if (q === 'unspecified' && plan.intent === 'add') throw new AgentError(`${product.name}는 몇 잔 드릴까요?`, 'CLARIFY');
+      if (q === 'unspecified' && plan.intent === 'add') throw ask(`${product.name}는 몇 잔 드릴까요?`);
       const quantity = q === 'unspecified' ? plan.line.quantity : Number(q);
       const rawShot = a[`shot${i}`];
       const shot = rawShot === 'unspecified' ? plan.line?.shot || false : rawShot === 'add';
@@ -98,8 +99,8 @@ export async function planCommand(client, text, snapshot, signal) {
       plan.items.push({ name: product.name, temperature, quantity, shot, price: product.price + (shot ? 500 : 0) });
     }
   }
-  if (['add', 'mode'].includes(plan.intent) && !plan.mode) throw new AgentError('매장과 포장 중 어느 쪽인가요?', 'CLARIFY');
-  if (plan.checkout && !plan.payment) throw new AgentError('결제수단을 알려주세요. 카드, 페이코, 삼성페이, 카카오페이, 네이버페이, 제로페이를 선택할 수 있습니다.', 'CLARIFY');
+  if (['add', 'mode'].includes(plan.intent) && !plan.mode) throw ask('매장과 포장 중 어느 쪽인가요?');
+  if (plan.checkout && !plan.payment) throw ask('결제수단을 알려주세요. 카드, 페이코, 삼성페이, 카카오페이, 네이버페이, 제로페이를 선택할 수 있습니다.');
   const relevant = ['intent'];
   for (const key of ['mode', 'payment']) if (a[key] !== 'unspecified') relevant.push(key);
   if (plan.checkout && plan.intent !== 'checkout') relevant.push('checkout');
