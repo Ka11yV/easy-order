@@ -54,3 +54,14 @@ test('shot omission preserves current shot; explicit removal removes it', async 
   const removed = await planCommand(fixture({ ...edit, shot1: 'remove' }), '아메리카노 샷 빼줘', { ...snapshot, mode: '매장', cart });
   assert.equal(removed.items[0].shot, false);
 });
+
+test('new drinks ask temperature then quantity; existing edits preserve omitted quantity', async () => {
+  const green = String(menu.find(item => item.name === '녹차라떼').id);
+  await assert.rejects(planCommand(fixture({ menu1: green, temperature1: 'unspecified', quantity1: 'unspecified' }), '녹차라떼', snapshot), /아이스로 할까요/);
+  await assert.rejects(planCommand(fixture({ menu1: green, quantity1: 'unspecified' }), '녹차라떼\n추가 답변: 아이스', snapshot), /녹차라떼는 몇 잔/);
+  const plan = await planCommand(fixture({ menu1: green, quantity1: '2' }), '녹차라떼\n추가 답변: 아이스\n추가 답변: 두 잔', snapshot);
+  assert.equal(plan.items[0].quantity, 2);
+  const cart = [{ name: '아메리카노', temperature: 'ICE', quantity: 3, shot: false, price: 2000 }];
+  const edit = await planCommand(fixture({ intent: 'edit', line: 'line_0', quantity1: 'unspecified', shot1: 'add' }), '아메리카노 샷 추가해줘', { ...snapshot, mode: '포장', cart });
+  assert.equal(edit.items[0].quantity, 3);
+});

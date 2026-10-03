@@ -63,7 +63,7 @@ export async function planCommand(client, text, snapshot, signal) {
     const focus = `The user requests ${itemCount} order line(s). Focus only on line ${i} in order of mention${known ? `, menu '${known.name}'` : ''}. Number of cups is not the line number. Ignore other lines.`;
     itemQuestions[`menu${i}`] = choice(`${focus} Which menu is requested?`, known ? { [String(known.id)]: known.name, ambiguous: 'Unclear or a different menu', none: 'No such order item' } : menuChoices);
     itemQuestions[`temperature${i}`] = choice(`${focus} What temperature is explicitly requested? 아아 means ICE, 뜨아 means HOT.`, { ICE: '아이스/차갑게', HOT: '핫/뜨겁게/따뜻하게', unspecified: 'Not specified' });
-    itemQuestions[`quantity${i}`] = choice(`${focus} How many cups of this menu? 한 잔=1, 두 잔=2. For edits select the final desired quantity.`, quantities);
+    itemQuestions[`quantity${i}`] = choice(`${focus} How many cups of this menu? 한 잔=1, 두 잔=2. Choose unspecified when no cup count is explicitly stated; never assume one cup from a single menu name or item count. For edits select the final desired quantity.`, quantities);
     itemQuestions[`shot${i}`] = choice(`${focus} Classify ONLY an explicit instruction about an extra espresso shot. If the user does not mention 샷/shot, choose unspecified. Do not infer removal from silence.`, { add: 'Explicit 샷 추가 / add an extra shot', remove: 'Explicit 샷 빼기 / 샷 추가 없이 / remove the extra shot', unspecified: 'No explicit instruction about shots; ordinary drink order' });
   }
   if (Object.keys(itemQuestions).length) {
@@ -90,7 +90,8 @@ export async function planCommand(client, text, snapshot, signal) {
       if (!product.temperatures.includes(temperature)) throw new AgentError(`${product.name}는 ${product.temperatures.join('/')}만 가능합니다.`, 'CLARIFY');
       const q = a[`quantity${i}`];
       if (q === 'unsupported') throw new AgentError('한 번에 1~20잔으로 말씀해 주세요.', 'CLARIFY');
-      const quantity = q === 'unspecified' ? plan.line?.quantity || 1 : Number(q);
+      if (q === 'unspecified' && plan.intent === 'add') throw new AgentError(`${product.name}는 몇 잔 드릴까요?`, 'CLARIFY');
+      const quantity = q === 'unspecified' ? plan.line.quantity : Number(q);
       const rawShot = a[`shot${i}`];
       const shot = rawShot === 'unspecified' ? plan.line?.shot || false : rawShot === 'add';
       if (shot && product.category !== '커피') throw new AgentError(`${product.name}에는 샷 추가 옵션이 없습니다.`, 'CLARIFY');
