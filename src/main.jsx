@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ArrowRight, Barcode, Check, ChevronLeft, ChevronRight, Home, Minus, Plus, ShoppingBag, Trash2, UtensilsCrossed, X } from 'lucide-react';
+import { ArrowRight, Barcode, Check, Home, Minus, Plus, ShoppingBag, Trash2, UtensilsCrossed, X } from 'lucide-react';
 import menu from './menu.json';
 import './style.css';
 import VoiceOrder from './VoiceOrder.jsx';
@@ -12,7 +12,6 @@ const products = [...menu].sort((a, b) => {
   const rank = name => featured.includes(name) ? featured.indexOf(name) : 100;
   return rank(a.name) - rank(b.name);
 });
-const PAGE_SIZE = 6;
 const barcodeMethods = new Set(['kakao', 'naver', 'payco', 'zeropay']);
 const paymentMethods = [
   { id: 'card', name: '카드', image: 'card.png' },
@@ -52,7 +51,6 @@ function Stepper({ value, onChange, label }) {
 function App() {
   const [mode, setMode] = useState(null);
   const [category, setCategory] = useState('전체');
-  const [page, setPage] = useState(0);
   const [cart, setCart] = useState([]);
   const [selected, setSelected] = useState(null);
   const [temperature, setTemperature] = useState('ICE');
@@ -66,8 +64,6 @@ function App() {
   const [notice, setNotice] = useState('');
   const grid = useRef(null);
   const filtered = products.filter(item => (category === '전체' || item.category === category));
-  const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const visible = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const count = cart.reduce((sum, item) => sum + item.quantity, 0);
   const total = cart.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
 
@@ -77,7 +73,7 @@ function App() {
     return () => clearTimeout(timer);
   }, [dialog]);
 
-  useEffect(() => { grid.current?.scrollTo(0, 0); }, [page, category]);
+  useEffect(() => { grid.current?.scrollTo(0, 0); }, [category]);
   useEffect(() => {
     if (!notice) return;
     const timer = setTimeout(() => setNotice(''), 2000);
@@ -108,7 +104,7 @@ function App() {
   }
   function reset() {
     setCart([]); setMode(null); setDialog(null); setSelected(null);
-    setCategory('전체'); setPage(0); setNotice(''); setPaymentMethod(null); setPhone('');
+    setCategory('전체'); setNotice(''); setPaymentMethod(null); setPhone('');
   }
   function finish() { reset(); setOrderNumber(number => number + 1); }
 
@@ -137,19 +133,18 @@ function App() {
     <div className="order-body">
       <section className="catalog" aria-label="음료 메뉴">
         <nav className="category-tabs" aria-label="음료 카테고리">
-          {categories.map(value => <button key={value} aria-pressed={category === value} className={category === value ? 'active' : ''} onClick={() => { setCategory(value); setPage(0); }}>{value}</button>)}
+          {categories.map(value => <button key={value} aria-pressed={category === value} className={category === value ? 'active' : ''} onClick={() => { setCategory(value); }}>{value}</button>)}
         </nav>
         <div className="catalog-tools">
           <span>{category} <b>{filtered.length}</b></span>
         </div>
         <div className="product-grid" ref={grid}>
-          {visible.map(item => <button className="product" key={item.id} onClick={() => select(item)} aria-label={`${item.name} ${won(item.price)} 선택`}>
+          {filtered.map(item => <button className="product" key={item.id} onClick={() => select(item)} aria-label={`${item.name} ${won(item.price)} 선택`}>
             <div className="product-photo"><img src={item.image} alt={item.name} draggable="false" /></div>
             <h2>{item.name}</h2><strong className="product-price">{won(item.price)}</strong>
           </button>)}
-          {!visible.length && <div className="no-results"><p>메뉴가 없습니다.</p><button onClick={() => { setCategory('전체'); setPage(0); }}>전체 메뉴</button></div>}
+          {!filtered.length && <div className="no-results"><p>메뉴가 없습니다.</p><button onClick={() => { setCategory('전체'); }}>전체 메뉴</button></div>}
         </div>
-        <div className="pagination"><button disabled={page === 0} onClick={() => setPage(page - 1)} aria-label="이전 메뉴 페이지"><ChevronLeft size={24} /> 이전</button><span><strong>{page + 1}</strong> / {pages}</span><button disabled={page >= pages - 1} onClick={() => setPage(page + 1)} aria-label="다음 메뉴 페이지">다음 <ChevronRight size={24} /></button></div>
       </section>
       <aside className="cart" aria-label="장바구니">
         <div className="cart-heading"><h2>주문 내역 <span>{count}</span></h2><button className="clear-cart" disabled={!cart.length} onClick={() => setDialog('clear')}><Trash2 size={17} /> 전체 삭제</button></div>

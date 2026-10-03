@@ -201,3 +201,20 @@ test('TTS failure preserves the completed cart and leaves the microphone off', {
   assert.equal((await browser.snapshot()).cart[0].quantity, 2);
   assert.ok(await page.evaluate(() => window.__testMediaTracks.every(track => track.readyState === 'ended')));
 });
+
+test('menu scrolls to offscreen cards and resets scroll when switching categories', async t => {
+  const { page } = await setup(t);
+  await page.getByRole('button', { name: '포장', exact: true }).click();
+  assert.equal(await page.getByRole('button', { name: '다음 메뉴 페이지' }).count(), 0);
+  const grid = page.locator('.product-grid');
+  assert.ok(await grid.evaluate(el => el.scrollHeight > el.clientHeight));
+  const last = grid.locator('.product').last();
+  const name = await last.locator('h2').innerText();
+  await last.scrollIntoViewIfNeeded();
+  assert.ok(await grid.evaluate(el => el.scrollTop > 0));
+  await last.click();
+  await page.getByRole('dialog', { name: `${name} 옵션 선택`, exact: true }).waitFor();
+  await page.getByRole('button', { name: '닫기', exact: true }).click();
+  await page.getByRole('button', { name: '커피', exact: true }).click();
+  await page.waitForFunction(() => document.querySelector('.product-grid').scrollTop === 0);
+});

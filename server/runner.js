@@ -90,13 +90,9 @@ export class OrderRunner {
       for (const item of plan.items) {
         if (!(await this.browser.snapshot()).mode) throw new AgentError('매장 또는 포장을 먼저 선택해 주세요.', 'CLARIFY');
         const category = menu.find(product => product.name === item.name).category;
-        // Traverse the visible menu exactly as a customer does; no text search field.
+        // Select a category, then scroll the actual menu card into view before clicking.
         await this.click(category, signal);
         const product = this.browser.page.locator('.product').filter({ has: this.browser.page.getByRole('heading', { name: item.name, exact: true }) });
-        for (let page = 0; await product.count() === 0 && page < 30; page++) {
-          if (await this.button('다음 메뉴 페이지').isDisabled()) break;
-          await this.click('다음 메뉴 페이지', signal);
-        }
         await this.step(`"${item.name}" 메뉴 카드를 선택하세요.`, product, signal);
         await this.configure(item, signal);
       }
