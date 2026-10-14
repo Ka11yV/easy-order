@@ -11,7 +11,7 @@ function fixture(overrides = {}, confidence = {}) {
     menu2: latte, temperature2: 'HOT', quantity2: '1', shot2: 'unspecified', ...overrides };
   return { calls, threshold: .5, async decide(state, questions) {
     calls.push({ state, questions });
-    const answers = Object.fromEntries(Object.keys(questions).map(key => [key, values[key]]));
+    const answers = Object.fromEntries(Object.keys(questions).map(key => [key, values[key] ?? 'unspecified']));
     return { answers, confidences: Object.fromEntries(Object.keys(questions).map(key => [key, confidence[key] ?? 1])) };
   } };
 }
@@ -64,4 +64,22 @@ test('new drinks ask temperature then quantity; existing edits preserve omitted 
   const cart = [{ name: '아메리카노', temperature: 'ICE', quantity: 3, shot: false, price: 2000 }];
   const edit = await planCommand(fixture({ intent: 'edit', line: 'line_0', quantity1: 'unspecified', shot1: 'add' }), '아메리카노 샷 추가해줘', { ...snapshot, mode: '포장', cart });
   assert.equal(edit.items[0].quantity, 3);
+});
+
+test('voice options are priced and edits preserve omitted choices while clearing explicit defaults', async () => {
+  const plan = await planCommand(fixture({ menu1: latte, milk1: 'oat', syrup1: 'vanilla', ice1: 'less' }), '카페라떼 두 잔 오트밀크 바닐라 시럽 얼음 적게 포장', snapshot);
+  assert.deepEqual(plan.items[0].options, { ice: 'less', milk: 'oat', syrup: 'vanilla' });
+  assert.equal(plan.items[0].price, 4100);
+  const cart = plan.items;
+  const edit = { intent: 'edit', line: 'line_0', menu1: latte, quantity1: 'unspecified', temperature1: 'HOT', syrup1: 'normal' };
+  const changed = await planCommand(fixture(edit), '따뜻하게 수정하고 추가 시럽 빼줘', { ...snapshot, mode: '포장', cart });
+  assert.deepEqual(changed.items[0].options, { milk: 'oat' });
+  assert.equal(changed.items[0].price, 3600);
+  assert.equal(changed.items[0].quantity, 2);
+});
+test('voice rejects unavailable options and uncertain option choices before execution', async () => {
+  await assert.rejects(planCommand(fixture({ milk1: 'oat' }), '아메리카노 오트밀크', snapshot), /우유 변경/);
+  await assert.rejects(planCommand(fixture({ ice1: 'less', temperature1: 'HOT' }), '따뜻한 아메리카노 얼음 적게', snapshot), /얼음 양/);
+  await assert.rejects(planCommand(fixture({ syrup1: 'unsupported' }), '아메리카노 알 수 없는 시럽', snapshot), /시럽 추가/);
+  await assert.rejects(planCommand(fixture({ syrup1: 'vanilla' }, { syrup1: .1 }), '아메리카노 바닐라 시럽', snapshot), { code: 'UNCERTAIN' });
 });

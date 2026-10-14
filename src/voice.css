@@ -60,3 +60,5 @@
   .voice-message { position: absolute; bottom: calc(100% + 10px); left: 16px; right: 16px; max-width: none; font-size: 13px; box-shadow: 0 4px 20px #18243a12; }
 }
 @media (prefers-reduced-motion: reduce) { .voice-dock * { animation: none !important; } }
+/* Tall option lists must end above the fixed voice strip, including on phones. */
+.modal { margin-bottom: calc(100px + env(safe-area-inset-bottom)); }

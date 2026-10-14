@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ArrowRight, Barcode, Check, Coffee, Home, Minus, Plus, ShoppingBag, Trash2, UtensilsCrossed, X } from 'lucide-react';
 import menu from './menu.json';
+import { groupsFor, normalizeOptions, optionsKey, optionsSummary, unitPrice as priceFor, optionPrice, optionButtonLabel } from './options.js';
 import './style.css';
 import VoiceOrder from './VoiceOrder.jsx';
 
@@ -56,6 +57,7 @@ function App() {
   const [temperature, setTemperature] = useState('ICE');
   const [quantity, setQuantity] = useState(1);
   const [shot, setShot] = useState(false);
+  const [options, setOptions] = useState({});
   const [editing, setEditing] = useState(null);
   const [dialog, setDialog] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState(null);
@@ -85,11 +87,13 @@ function App() {
     setTemperature(line?.temperature ?? (item.temperatures.includes('ICE') ? 'ICE' : item.temperatures[0]));
     setQuantity(line?.quantity ?? 1);
     setShot(line?.shot ?? false);
+    setOptions(line?.options ?? {});
     setEditing(line?.key ?? null);
   }
   function add() {
-    const key = `${selected.id}-${temperature}-${shot}`;
-    const unitPrice = selected.price + (shot ? 500 : 0);
+    const validOptions = normalizeOptions(selected, temperature, options);
+    const key = `${selected.id}-${temperature}-${shot}-${optionsKey(validOptions)}`;
+    const unitPrice = priceFor(selected, shot, validOptions);
     const others = cart.filter(item => item.key !== editing);
     const existing = others.find(item => item.key === key);
     if ((existing?.quantity ?? 0) + quantity > 99) {
@@ -98,7 +102,7 @@ function App() {
     }
     setCart(existing
       ? others.map(item => item.key === key ? { ...item, quantity: item.quantity + quantity } : item)
-      : [...others, { ...selected, key, quantity, temperature, shot, unitPrice }]);
+      : [...others, { ...selected, key, quantity, temperature, shot, options: validOptions, unitPrice }]);
     setSelected(null);
     setNotice(editing ? '수정되었습니다.' : '담았습니다.');
   }
@@ -150,11 +154,11 @@ function App() {
       <aside className="cart" aria-label="장바구니">
         <div className="cart-heading"><h2>주문 내역 <span>{count}</span></h2><button className="clear-cart" disabled={!cart.length} onClick={() => setDialog('clear')}><Trash2 size={17} /> 전체 삭제</button></div>
         <div className="cart-list">
-          {cart.length ? cart.map(item => <article className="cart-line" key={item.key}>
+          {cart.length ? cart.map(item => <article className="cart-line" key={item.key} data-options={JSON.stringify(item.options || {})} data-temperature={item.temperature} data-shot={String(item.shot)}>
             <img src={item.images?.[item.temperature] || item.image} alt="" />
             <div className="cart-line-content">
               <div className="cart-line-heading"><h3>{item.name}</h3><button className="delete-line" aria-label={`${item.name} 삭제`} onClick={() => setCart(cart.filter(line => line.key !== item.key))}><X size={18} /></button></div>
-              <button className="edit-options" aria-label={`${item.name} 옵션 수정`} onClick={() => select(item, item)}>{item.temperature}{item.shot ? ' · 샷 추가' : ''}<span>변경</span></button>
+              <button className="edit-options" aria-label={`${item.name} 옵션 수정`} onClick={() => select(item, item)}><span className="line-options">{[item.temperature, item.shot && '샷 추가', optionsSummary(item.options)].filter(Boolean).join(' · ')}</span><span>변경</span></button>
               <div className="cart-line-bottom"><Stepper label={item.name} value={item.quantity} onChange={quantity => setCart(cart.map(line => line.key === item.key ? { ...line, quantity } : line))} /><strong>{won(item.quantity * item.unitPrice)}</strong></div>
             </div>
           </article>) : <div className="empty-cart"><ShoppingBag size={38} strokeWidth={1.2} /><p>메뉴를 선택해주세요.</p></div>}
@@ -163,17 +167,25 @@ function App() {
       </aside>
     </div>
     {selected && <Modal wide label={`${selected.name} 옵션 선택`} onClose={() => setSelected(null)}>
-      <div className="options-layout"><div className="options-photo"><img src={selected.images?.[temperature] || selected.image} alt={selected.name} /></div><div className="options-content">
+      <div className="options-layout"><div className="options-photo"><img src={selected.images?.[temperature] || selected.image} alt={selected.name} /></div><div className="options-content" data-options={JSON.stringify(normalizeOptions(selected, temperature, options))}>
         <h2>{selected.name}</h2><p className="base-price">{won(selected.price)}</p>
-        <fieldset><legend>온도 <span>필수</span></legend><div className="temperatures">{selected.temperatures.map(value => <button key={value} className={temperature === value ? 'selected' : ''} aria-pressed={temperature === value} onClick={() => setTemperature(value)}>{value === 'HOT' ? 'HOT 따뜻하게' : 'ICE 차갑게'}{temperature === value && <Check size={18} />}</button>)}</div></fieldset>
+        <fieldset><legend>온도 <span>필수</span></legend><div className="temperatures">{selected.temperatures.map(value => <button key={value} className={temperature === value ? 'selected' : ''} aria-pressed={temperature === value} onClick={() => { setTemperature(value); setOptions(current => normalizeOptions(selected, value, current)); }}>{value === 'HOT' ? 'HOT 따뜻하게' : 'ICE 차갑게'}{temperature === value && <Check size={18} />}</button>)}</div></fieldset>
         {selected.category === '커피' && <fieldset><legend>추가 옵션</legend><button className={`shot-option ${shot ? 'selected' : ''}`} aria-pressed={shot} onClick={() => setShot(!shot)}><span>샷 추가 <small>+500원</small></span><span className="check-box">{shot && <Check size={17} />}</span></button></fieldset>}
+        <div className="custom-options">
+          {groupsFor(selected, temperature).map(group => <fieldset key={group.id}><legend>{group.label}</legend><div className="option-choices" role="group" aria-label={group.label}>
+            {group.values.map(value => <button key={value.id} aria-label={optionButtonLabel(value)} aria-pressed={(options[group.id] || 'normal') === value.id} onClick={() => setOptions(current => normalizeOptions(selected, temperature, { ...current, [group.id]: value.id }))}>
+              <span>{value.label}</span><small>{value.price ? `+${won(value.price)}` : '무료'}</small>
+            </button>)}
+          </div></fieldset>)}
+        </div>
+        {(shot || optionPrice(options) > 0) && <p className="option-surcharge">추가 금액 <strong>한 잔당 +{won((shot ? 500 : 0) + optionPrice(options))}</strong></p>}
         <div className="quantity"><span>수량</span><Stepper label="선택" value={quantity} onChange={setQuantity} /></div>
-        <button className="primary" onClick={add}><strong>{won((selected.price + (shot ? 500 : 0)) * quantity)}</strong><span>{editing ? '수정' : '담기'} <Plus size={20} /></span></button>
+        <button className="primary" onClick={add}><strong>{won(priceFor(selected, shot, options) * quantity)}</strong><span>{editing ? '수정' : '담기'} <Plus size={20} /></span></button>
       </div></div>
     </Modal>}
     {dialog === 'review' && <Modal label="주문 확인" onClose={() => setDialog(null)}>
       <h2>주문 확인</h2><p className="review-mode">{mode} · {count}잔</p>
-      <div className="review-list">{cart.map(item => <div key={item.key}><div><strong>{item.name} × {item.quantity}</strong><p>{item.temperature}{item.shot ? ' · 샷 추가' : ''}</p></div><strong>{won(item.quantity * item.unitPrice)}</strong></div>)}</div>
+      <div className="review-list">{cart.map(item => <div key={item.key}><div><strong>{item.name} × {item.quantity}</strong><p>{[item.temperature, item.shot && '샷 추가', optionsSummary(item.options)].filter(Boolean).join(' · ')}</p></div><strong>{won(item.quantity * item.unitPrice)}</strong></div>)}</div>
       <div className="total"><span>합계</span><strong>{won(total)}</strong></div>
       <p className="demo-note">체험용 가격 · 실제 결제되지 않습니다.</p>
       <button className="primary" onClick={() => { setPaymentMethod(null); setDialog('points'); }}>결제하기 <ArrowRight size={22} /></button><button className="secondary" onClick={() => setDialog(null)}>돌아가기</button>

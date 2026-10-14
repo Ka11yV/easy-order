@@ -47,7 +47,7 @@ try {
     const result = await utterance(text);
     if (result.points) { const skipped = await utterance('적립은 건너뛰기'); if (skipped.error) throw Error(skipped.error); }
     if (result.error && !(options && index === 0 && result.code === 'CLARIFY')) throw Error(result.error);
-    assert.deepEqual((await service.browser.snapshot()).cart, expected[index], `Wrong cart after: ${text}`);
+    assert.deepEqual((await service.browser.snapshot()).cart, expected[index].map(line => ({ ...line, options: {} })), `Wrong cart after: ${text}`);
     console.log(`${service.state().status}: ${text} (장바구니 일치)`);
   }
   const confirmed = await utterance('네, 결제 진행해 주세요');

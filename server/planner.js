@@ -1,3 +1,4 @@
+import { optionGroups, normalizeOptions, validateOptions, optionsKey, optionsSummary, unitPrice } from '../src/options.js';
 import { readFileSync } from 'node:fs';
 import { AgentError, choice } from './jev.js';
 
@@ -53,7 +54,7 @@ export async function planCommand(client, text, snapshot, signal) {
     const mentionedNames = new Set(mentions.map(mention => mention.item.name));
     const candidates = snapshot.cart.map((line, index) => ({ ...line, index })).filter(line => !mentionedNames.size || mentionedNames.has(line.name));
     itemQuestions.line = choice('Which EXISTING cart line does the user want to edit/remove? Match its menu and original temperature/shot when specified. Ignore the requested NEW quantity: it is expected to differ from the current quantity. If several lines are plausible, choose ambiguous.', {
-      ...Object.fromEntries(candidates.map(line => [`line_${line.index}`, `${line.name} / ${line.temperature} / ${line.shot ? '샷 추가 있음' : '샷 추가 없음'}`])),
+      ...Object.fromEntries(candidates.map(line => [`line_${line.index}`, `${line.name} / ${line.temperature} / ${line.shot ? '샷 추가 있음' : '샷 추가 없음'} / ${optionsSummary(line.options) || '기본 옵션'}`])),
       ambiguous: 'The target is unclear or not in the cart',
     });
     if (!candidates.length) throw new AgentError('장바구니에 해당 메뉴가 없습니다.', 'CLARIFY');
@@ -66,6 +67,11 @@ export async function planCommand(client, text, snapshot, signal) {
     itemQuestions[`temperature${i}`] = choice(`${focus} What temperature is explicitly requested? 아아 means ICE, 뜨아 means HOT.`, { ICE: '아이스/차갑게', HOT: '핫/뜨겁게/따뜻하게', unspecified: 'Not specified' });
     itemQuestions[`quantity${i}`] = choice(`${focus} How many cups of this menu? 한 잔=1, 두 잔=2. Choose unspecified when no cup count is explicitly stated; never assume one cup from a single menu name or item count. For edits select the final desired quantity.`, quantities);
     itemQuestions[`shot${i}`] = choice(`${focus} Classify ONLY an explicit instruction about an extra espresso shot. If the user does not mention 샷/shot, choose unspecified. Do not infer removal from silence.`, { add: 'Explicit 샷 추가 / add an extra shot', remove: 'Explicit 샷 빼기 / 샷 추가 없이 / remove the extra shot', unspecified: 'No explicit instruction about shots; ordinary drink order' });
+    for (const group of optionGroups) itemQuestions[`${group.id}${i}`] = choice(`${focus} ${group.label}: classify only an EXPLICIT request for this option. Omission MUST be unspecified, including edits. normal means explicitly restore the default or remove an added option. Do not infer sweetness changes from the drink name. Removing shots is NOT removing syrup. Unsupported or ambiguous requested values must be unsupported.`, {
+      unspecified: '언급 없음: 새 주문은 기본, 수정은 기존 설정 유지',
+      ...Object.fromEntries(group.values.map(value => [value.id, value.label])), unsupported: '지원하지 않거나 불명확한 옵션 요청',
+    });
+
   }
   if (Object.keys(itemQuestions).length) {
     const details = await client.decide({ ...state, task: a.intent, orderItemCount: itemCount }, itemQuestions, signal, { threshold: 0 });
@@ -96,7 +102,18 @@ export async function planCommand(client, text, snapshot, signal) {
       const rawShot = a[`shot${i}`];
       const shot = rawShot === 'unspecified' ? plan.line?.shot || false : rawShot === 'add';
       if (shot && product.category !== '커피') throw new AgentError(`${product.name}에는 샷 추가 옵션이 없습니다.`, 'CLARIFY');
-      plan.items.push({ name: product.name, temperature, quantity, shot, price: product.price + (shot ? 500 : 0) });
+      const options = normalizeOptions(product, temperature, plan.line?.options);
+      for (const group of optionGroups) {
+        const value = a[`${group.id}${i}`];
+        if (value === 'unspecified') continue;
+        if (value === 'unsupported' || !group.values.some(item => item.id === value)) throw new AgentError(`${product.name}의 ${group.label} 옵션을 다시 말씀해 주세요.`, 'CLARIFY');
+        if (value === 'normal') delete options[group.id];
+        else options[group.id] = value;
+      }
+      let validOptions;
+      try { validOptions = validateOptions(product, temperature, options); }
+      catch (error) { throw new AgentError(error.message, 'CLARIFY'); }
+      plan.items.push({ name: product.name, temperature, quantity, shot, options: validOptions, price: unitPrice(product, shot, validOptions) });
     }
   }
   if (['add', 'mode'].includes(plan.intent) && !plan.mode) throw ask('매장과 포장 중 어느 쪽인가요?');
@@ -108,7 +125,7 @@ export async function planCommand(client, text, snapshot, signal) {
   plan.items.forEach((_, index) => {
     const i = index + 1;
     if (plan.intent === 'add') relevant.push(`menu${i}`);
-    for (const field of ['temperature', 'quantity', 'shot']) if (a[`${field}${i}`] !== 'unspecified') relevant.push(`${field}${i}`);
+    for (const field of ['temperature', 'quantity', 'shot', ...optionGroups.map(group => group.id)]) if (a[`${field}${i}`] !== 'unspecified') relevant.push(`${field}${i}`);
   });
   if (relevant.some(key => (result.confidences?.[key] ?? 0) < client.threshold)) throw new AgentError('주문 해석이 불확실합니다. 메뉴·온도·수량을 구체적으로 다시 말씀해 주세요.', 'UNCERTAIN');
   return plan;
@@ -116,7 +133,7 @@ export async function planCommand(client, text, snapshot, signal) {
 
 export function expectedCart(before, plan) {
   let result = before.map(line => ({ ...line }));
-  const same = (a, b) => a.name === b.name && a.temperature === b.temperature && a.shot === b.shot;
+  const same = (a, b) => a.name === b.name && a.temperature === b.temperature && a.shot === b.shot && optionsKey(a.options) === optionsKey(b.options);
   if (['edit', 'remove'].includes(plan.intent)) result = result.filter(line => !same(line, plan.line));
   for (const item of plan.items) {
     const existing = result.find(line => same(line, item));
@@ -128,6 +145,6 @@ export function expectedCart(before, plan) {
 }
 
 export function cartMatches(actual, expected) {
-  const normalize = list => list.map(({ name, temperature, quantity, shot }) => `${name}|${temperature}|${shot}|${quantity}`).sort();
+  const normalize = list => list.map(({ name, temperature, quantity, shot, options, price }) => `${name}|${temperature}|${shot}|${optionsKey(options)}|${quantity}|${price ?? ''}`).sort();
   return JSON.stringify(normalize(actual)) === JSON.stringify(normalize(expected));
 }

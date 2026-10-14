@@ -49,8 +49,8 @@ export class KioskBrowser {
           region: ['dialog', '.start-options', '.category-tabs', '.product-grid', '.search', '.cart-checkout', '.cart', '.header'].find(selector => el.closest(selector)) || 'page', context: el.closest('.cart-line')?.innerText || null, disabled: el.disabled, pressed: el.getAttribute('aria-pressed'), value: el.tagName === 'INPUT' ? (el.type === 'tel' ? '[private]' : el.value) : undefined };
       });
       const cart = [...document.querySelectorAll('.cart-line')].map(el => ({
-        name: el.querySelector('h3').textContent.trim(), temperature: el.querySelector('.edit-options').textContent.includes('HOT') ? 'HOT' : 'ICE',
-        shot: el.querySelector('.edit-options').textContent.includes('샷 추가'), quantity: Number(el.querySelector('output').textContent),
+        name: el.querySelector('h3').textContent.trim(), temperature: el.dataset.temperature,
+        shot: el.dataset.shot === 'true', options: JSON.parse(el.dataset.options || '{}'), quantity: Number(el.querySelector('output').textContent),
         price: Number(el.querySelector('.cart-line-bottom>strong').textContent.replace(/\D/g, '')) / Number(el.querySelector('output').textContent),
       }));
       return { screen: dialog?.getAttribute('aria-label') || (document.querySelector('.start-screen') ? '매장 또는 포장 선택' : '메뉴 선택'),
@@ -60,7 +60,7 @@ export class KioskBrowser {
         receipt: document.querySelector('.payment-receipt')?.textContent || null,
         option: dialog?.querySelector('.options-content') ? { name: dialog.querySelector('h2').textContent,
           temperature: dialog.querySelector('.temperatures .selected')?.textContent.startsWith('HOT') ? 'HOT' : 'ICE',
-          shot: Boolean(dialog.querySelector('.shot-option.selected')), quantity: Number(dialog.querySelector('output').textContent) } : null,
+          shot: Boolean(dialog.querySelector('.shot-option.selected')), options: JSON.parse(dialog.querySelector('.options-content').dataset.options || '{}'), quantity: Number(dialog.querySelector('output').textContent) } : null,
       };
     });
     // Toasts and focus are deliberately excluded: they do not change available actions.

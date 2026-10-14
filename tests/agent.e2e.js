@@ -17,10 +17,11 @@ class FixtureJev {
     if (questions.points) return { answers: { points: state.userRequest.includes('아니') || state.userRequest.includes('건너') ? 'no' : 'yes' }, confidences: { points: 1 } };
     if (questions.confirmation) return { answers: { confirmation: state.userRequest.includes('아니') ? 'cancel' : state.userRequest.includes('글쎄') ? 'unclear' : 'confirm' }, confidences: { confirmation: 1 } };
     if (questions.intent || questions.menu1 || questions.line) {
-      answers = Object.fromEntries(Object.keys(questions).map(key => [key, key.startsWith('menu') ? 'none' : key.startsWith('quantity') || key.startsWith('temperature') || key.startsWith('shot') ? 'unspecified' : 'no']));
+      answers = Object.fromEntries(Object.keys(questions).map(key => [key, key.startsWith('menu') ? 'none' : key.startsWith('quantity') || key.startsWith('temperature') || key.startsWith('shot') || /^(ice|milk|sweetness|syrup|cream|pearl|drizzle|strength)\d+$/.test(key) ? 'unspecified' : 'no']));
       Object.assign(answers, { intent: 'add', mode: '포장', payment: 'unspecified', checkout: 'no', line: 'none', item_count: '1',
         menu1: String(menu.find(item => item.name === '아메리카노').id), temperature1: 'ICE', quantity1: '2', shot1: 'unspecified' });
-      if (state.userRequest.includes('수정')) Object.assign(answers, { intent: 'edit', line: 'line_0', quantity1: '1', mode: 'unspecified' });
+      Object.assign(answers, this.optionAnswers || {});
+      if (state.userRequest.includes('수정')) Object.assign(answers, { intent: 'edit', line: `line_${state.cart.findIndex(line => line.options?.syrup === 'vanilla') < 0 ? 0 : state.cart.findIndex(line => line.options?.syrup === 'vanilla')}`, quantity1: '1', mode: 'unspecified' });
       if (state.userRequest.includes('결제')) Object.assign(answers, { intent: 'checkout', payment: '카카오페이', checkout: 'yes', mode: 'unspecified' });
       if (state.userRequest.includes('삭제')) Object.assign(answers, { intent: 'remove', line: 'line_0', mode: 'unspecified' });
     } else {
@@ -32,7 +33,7 @@ class FixtureJev {
       else if (task?.includes('메뉴 검색창')) found = entries.find(([, value]) => value.startsWith('입력창 메뉴 검색'));
       else if (task?.includes('메뉴 카드를')) found = entries.find(([, value]) => value.startsWith('클릭: 아메리카노 ') && value.endsWith(' 선택'));
       else if (task?.includes('저장하세요')) found = entries.find(([, value]) => /^클릭: .*원(담기|수정)$/.test(value.replace(/\s+/g, '')) || /^클릭: .*원\s*(담기|수정)$/.test(value));
-      else if (task?.includes('옵션 변경')) found = entries.find(([, value]) => value === '클릭: 아메리카노 옵션 수정');
+      else if (task?.includes('옵션 변경')) found = entries.find(([ref, value]) => value === '클릭: 아메리카노 옵션 수정' && (!task.includes('바닐라 시럽') || state.controls.find(control => control.ref === ref)?.context.includes('바닐라 시럽')));
       else if (task?.includes('삭제하세요')) found = entries.find(([, value]) => value === '클릭: 아메리카노 삭제');
       if (!found) throw Error(`Fixture target missing: ${task}\n${JSON.stringify(entries)}`);
       answers = { action: found[0] };
@@ -251,4 +252,64 @@ test('points opt-in collects and confirms a phone number before payment, with no
   assert.ok(!JSON.stringify(state()).includes(number));
   assert.ok(!JSON.stringify(state()).includes(corrected));
   assert.equal(await browser.page.locator('.order-number').count(), 0);
+});
+
+test('touch options keep variants separate, reprice edits, and survive mobile checkout', async t => {
+  const { page, browser } = await setup(t);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole('button', { name: '포장', exact: true }).click();
+  await page.getByRole('button', { name: '카페라떼 3,000원 선택', exact: true }).click();
+  await page.getByRole('button', { name: '오트밀크 +600원', exact: true }).click();
+  await page.getByRole('button', { name: '바닐라 시럽 +500원', exact: true }).click();
+  await page.getByRole('button', { name: '얼음 적게', exact: true }).click();
+  await page.getByRole('button', { name: '선택 수량 늘리기', exact: true }).click();
+  await page.getByRole('button', { name: '8,200원 담기', exact: true }).click();
+  await page.getByRole('button', { name: '카페라떼 3,000원 선택', exact: true }).click();
+  await page.getByRole('button', { name: '3,000원 담기', exact: true }).click();
+  let cart = (await browser.snapshot()).cart;
+  assert.equal(cart.length, 2);
+  assert.deepEqual(cart[0].options, { ice: 'less', milk: 'oat', syrup: 'vanilla' });
+  assert.equal(cart[0].price, 4100);
+  await page.locator('.cart-line').first().getByRole('button', { name: '카페라떼 옵션 수정' }).click();
+  await page.getByRole('button', { name: 'HOT 따뜻하게', exact: true }).click();
+  assert.equal(await page.getByRole('button', { name: '얼음 적게', exact: true }).count(), 0);
+  assert.equal(await page.getByRole('button', { name: '오트밀크 +600원', exact: true }).getAttribute('aria-pressed'), 'true');
+  await page.getByRole('button', { name: '시럽 추가 안 함', exact: true }).click();
+  await page.getByRole('button', { name: '7,200원 수정', exact: true }).click();
+  cart = (await browser.snapshot()).cart;
+  assert.deepEqual(cart.find(line => line.temperature === 'HOT').options, { milk: 'oat' });
+  assert.equal(cart.reduce((sum, line) => sum + line.price * line.quantity, 0), 10200);
+  await page.getByRole('button', { name: '주문하기', exact: true }).click();
+  assert.match(await page.locator('.review-list').innerText(), /오트밀크/);
+  await page.getByRole('button', { name: '결제하기', exact: true }).click();
+  await page.getByRole('button', { name: '건너뛰기', exact: true }).click();
+  await page.getByRole('button', { name: '카드', exact: true }).click();
+  await page.getByRole('button', { name: '카드 모의 결제', exact: true }).click();
+  assert.match((await browser.snapshot()).receipt, /10,200원/);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+});
+
+test('voice applies extra options and edits the correct variant without losing unmentioned options', async t => {
+  const { call, client, browser } = await setup(t);
+  client.optionAnswers = { syrup1: 'vanilla', ice1: 'less' };
+  let result = await call('utterance', { text: '아이스 아메리카노 두 잔 포장 바닐라 시럽 얼음 적게' });
+  assert.equal(result.error, undefined, result.error);
+  let cart = (await browser.snapshot()).cart;
+  assert.deepEqual(cart[0].options, { ice: 'less', syrup: 'vanilla' });
+  assert.equal(cart[0].price, 2500);
+  client.optionAnswers = {};
+  await call('utterance', { text: '아이스 아메리카노 두 잔 포장' });
+  assert.equal((await browser.snapshot()).cart.length, 2);
+  result = await call('utterance', { text: '바닐라 시럽 아메리카노 하나로 수정' });
+  assert.equal(result.error, undefined, result.error);
+  cart = (await browser.snapshot()).cart;
+  assert.equal(cart.find(line => line.options.syrup).quantity, 1);
+  assert.equal(cart.find(line => !line.options.syrup).quantity, 2);
+  client.optionAnswers = { syrup1: 'normal', ice1: 'normal' };
+  result = await call('utterance', { text: '바닐라 시럽 빼고 기본 얼음으로 수정' });
+  assert.equal(result.error, undefined, result.error);
+  cart = (await browser.snapshot()).cart;
+  assert.equal(cart.length, 1);
+  assert.equal(cart[0].quantity, 3);
+  assert.equal(cart[0].price, 2000);
 });
