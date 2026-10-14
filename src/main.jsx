@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ArrowRight, Barcode, Check, Home, Minus, Plus, ShoppingBag, Trash2, UtensilsCrossed, X } from 'lucide-react';
+import { ArrowRight, Barcode, Check, Coffee, Home, Minus, Plus, ShoppingBag, Trash2, UtensilsCrossed, X } from 'lucide-react';
 import menu from './menu.json';
 import './style.css';
 import VoiceOrder from './VoiceOrder.jsx';
@@ -109,19 +109,20 @@ function App() {
   function finish() { reset(); setOrderNumber(number => number + 1); }
 
   if (!mode) return <main className="start-screen" aria-label="매장 또는 포장 선택">
+    <div className="start-intro"><span className="brand"><Coffee size={24} strokeWidth={1.8} /> easy order<span className="brand-dot">.</span></span><h1>어디서 즐기시나요?</h1><p>좋아하는 한 잔, 편하게 주문하세요.</p></div>
     <div className="start-options">
-      <button className="start-button dine-in" onClick={() => setMode('매장')}>
-        <UtensilsCrossed aria-hidden="true" strokeWidth={1.3} /><strong>매장</strong>
+      <button className="start-button dine-in" aria-label="매장" onClick={() => setMode('매장')}>
+        <UtensilsCrossed aria-hidden="true" strokeWidth={1.3} /><strong>매장</strong><span>여유롭게 즐길게요 <ArrowRight size={20} /></span>
       </button>
-      <button className="start-button takeout" onClick={() => setMode('포장')}>
-        <ShoppingBag aria-hidden="true" strokeWidth={1.3} /><strong>포장</strong>
+      <button className="start-button takeout" aria-label="포장" onClick={() => setMode('포장')}>
+        <ShoppingBag aria-hidden="true" strokeWidth={1.3} /><strong>포장</strong><span>가지고 갈게요 <ArrowRight size={20} /></span>
       </button>
     </div>
   </main>;
 
   return <div className="kiosk">
     <header className="header">
-      <h1>메뉴 선택</h1>
+      <h1 className="brand" aria-label="easy order"><Coffee size={26} strokeWidth={1.8} /> easy order<span className="brand-dot">.</span></h1>
       <div className="header-actions">
         <button className="mode-button" onClick={() => setMode(mode === '매장' ? '포장' : '매장')}>
           {mode === '매장' ? <UtensilsCrossed size={21} /> : <ShoppingBag size={21} />}
@@ -136,7 +137,7 @@ function App() {
           {categories.map(value => <button key={value} aria-pressed={category === value} className={category === value ? 'active' : ''} onClick={() => { setCategory(value); }}>{value}</button>)}
         </nav>
         <div className="catalog-tools">
-          <span>{category} <b>{filtered.length}</b></span>
+          <h2>{category === '전체' ? '전체 메뉴' : category} <span>{filtered.length}</span></h2><span>원하는 메뉴를 선택해 주세요</span>
         </div>
         <div className="product-grid" ref={grid}>
           {filtered.map(item => <button className="product" key={item.id} onClick={() => select(item)} aria-label={`${item.name} ${won(item.price)} 선택`}>
