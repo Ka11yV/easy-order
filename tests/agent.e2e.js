@@ -314,3 +314,42 @@ test('voice applies extra options and edits the correct variant without losing u
   assert.equal(cart[0].quantity, 3);
   assert.equal(cart[0].price, 2000);
 });
+
+test('QA: small portrait screens leave usable space for browsing and checkout', async t => {
+  const { page } = await setup(t);
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.getByRole('button', { name: '포장', exact: true }).click();
+  const grid = await page.locator('.product-grid').boundingBox();
+  assert.ok(grid.height >= 140, `catalog height is only ${grid.height}px`);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  const checkout = await page.getByRole('button', { name: '주문하기', exact: true }).boundingBox();
+  const dock = await page.locator('.voice-dock').boundingBox();
+  assert.ok(checkout.y + checkout.height <= dock.y);
+});
+
+test('QA: long option dialogs keep their close control available after scrolling', async t => {
+  const { page } = await setup(t);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole('button', { name: '포장', exact: true }).click();
+  await page.getByRole('button', { name: '카페라떼 3,000원 선택', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.locator('.primary').scrollIntoViewIfNeeded();
+  const close = await dialog.getByRole('button', { name: '닫기', exact: true }).boundingBox();
+  const bounds = await dialog.boundingBox();
+  assert.ok(close.y >= bounds.y && close.y + close.height <= bounds.y + bounds.height, `close control left dialog: ${JSON.stringify(close)}`);
+});
+
+test('QA: exceeding the cart limit displays an error inside the active option dialog', async t => {
+  const { page, browser } = await setup(t);
+  await page.getByRole('button', { name: '포장', exact: true }).click();
+  await page.getByRole('button', { name: '아메리카노 2,000원 선택', exact: true }).click();
+  await page.getByRole('button', { name: '2,000원 담기', exact: true }).click();
+  await page.getByRole('button', { name: '아메리카노 2,000원 선택', exact: true }).click();
+  const increment = page.getByRole('button', { name: '선택 수량 늘리기', exact: true });
+  for (let n = 1; n < 99; n++) await increment.click();
+  await page.getByRole('button', { name: '198,000원 담기', exact: true }).click();
+  const error = page.getByRole('dialog').getByRole('alert');
+  assert.equal(await error.count(), 1, 'the visible dialog must explain the rejected add');
+  assert.match(await error.innerText(), /99/);
+  assert.equal((await browser.snapshot()).cart[0].quantity, 1);
+});

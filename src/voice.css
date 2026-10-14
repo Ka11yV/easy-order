@@ -73,3 +73,14 @@ dialog.modal {
   .voice-heading { margin-bottom: 4px; }
 }
 @media (prefers-reduced-motion: reduce) { .voice-dock * { animation: none !important; } }
+/* On short phones, retain readable captions without consuming the menu area. */
+@media (max-width: 600px) and (max-height: 700px) {
+  .voice-dock { flex-wrap: nowrap; gap: 10px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); }
+  .voice-copy { flex: 1; }
+  .voice-heading { font-size: 12px; gap: 4px; margin-bottom: 4px; }
+  .voice-phase { display: none; }
+  .voice-message { font-size: 13px; max-height: 48px; }
+  .voice-transcript { font-size: 12px; max-height: 20px; margin-top: 4px; }
+  .voice-button { font-size: 13px; padding: 6px 10px; gap: 5px; }
+  .voice-icon { width: 28px; height: 28px; }
+}

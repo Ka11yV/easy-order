@@ -36,7 +36,7 @@ function Modal({ label, children, onClose, wide = false, className = '' }) {
     return () => { element.removeEventListener('cancel', cancel); previous?.focus(); };
   }, []);
   return <dialog ref={dialog} className={`modal ${wide ? 'wide' : ''} ${className}`} aria-label={label}>
-    <button className="close icon-button" aria-label="닫기" onClick={onClose}><X /></button>
+    <div className="modal-toolbar"><button className="close icon-button" aria-label="닫기" onClick={onClose}><X /></button></div>
     {children}
   </dialog>;
 }
@@ -58,6 +58,7 @@ function App() {
   const [quantity, setQuantity] = useState(1);
   const [shot, setShot] = useState(false);
   const [options, setOptions] = useState({});
+  const [optionError, setOptionError] = useState('');
   const [editing, setEditing] = useState(null);
   const [dialog, setDialog] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState(null);
@@ -76,6 +77,7 @@ function App() {
   }, [dialog]);
 
   useEffect(() => { grid.current?.scrollTo(0, 0); }, [category]);
+  useEffect(() => { setOptionError(''); }, [temperature, shot, options]);
   useEffect(() => {
     if (!notice) return;
     const timer = setTimeout(() => setNotice(''), 2000);
@@ -83,6 +85,7 @@ function App() {
   }, [notice]);
 
   function select(item, line) {
+    setOptionError('');
     setSelected(item);
     setTemperature(line?.temperature ?? (item.temperatures.includes('ICE') ? 'ICE' : item.temperatures[0]));
     setQuantity(line?.quantity ?? 1);
@@ -97,7 +100,7 @@ function App() {
     const others = cart.filter(item => item.key !== editing);
     const existing = others.find(item => item.key === key);
     if ((existing?.quantity ?? 0) + quantity > 99) {
-      setNotice('같은 메뉴는 최대 99개까지 담을 수 있습니다.');
+      setOptionError(`같은 메뉴는 최대 99잔까지 담을 수 있습니다. 이미 ${existing.quantity}잔이 담겨 있어 ${99 - existing.quantity}잔까지 추가할 수 있습니다.`);
       return;
     }
     setCart(existing
@@ -179,7 +182,8 @@ function App() {
           </div></fieldset>)}
         </div>
         {(shot || optionPrice(options) > 0) && <p className="option-surcharge">추가 금액 <strong>한 잔당 +{won((shot ? 500 : 0) + optionPrice(options))}</strong></p>}
-        <div className="quantity"><span>수량</span><Stepper label="선택" value={quantity} onChange={setQuantity} /></div>
+        <div className="quantity"><span>수량</span><Stepper label="선택" value={quantity} onChange={value => { setQuantity(value); setOptionError(''); }} /></div>
+        <div className="option-error" role="alert" aria-live="assertive">{optionError}</div>
         <button className="primary" onClick={add}><strong>{won(priceFor(selected, shot, options) * quantity)}</strong><span>{editing ? '수정' : '담기'} <Plus size={20} /></span></button>
       </div></div>
     </Modal>}
