@@ -98,6 +98,7 @@ test('one kiosk: microphone → STT → JEV clicks → TTS → spoken payment co
   assert.equal(await page.getByRole('textbox').count(), 0);
   await page.getByRole('button', { name: '음성 주문 시작' }).click();
   await page.locator('.voice-dock[data-phase="listening"]').waitFor({ timeout: 10000 }).catch(async error => { console.log(await page.locator('.voice-dock').innerText(), 'sockets', sockets.length); throw error; });
+  assert.match(await page.locator('.voice-message').innerText(), /드시고 가시나요/);
   await delay(500); // Let the fake microphone send audio through the real SDK.
   assert.equal((await say('아이스 아메리카노 두 잔 포장')).phase, 'listening', JSON.stringify(state()));
   assert.equal((await browser.snapshot()).cart[0].quantity, 2);

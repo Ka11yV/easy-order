@@ -141,7 +141,7 @@ function App() {
           {categories.map(value => <button key={value} aria-pressed={category === value} className={category === value ? 'active' : ''} onClick={() => { setCategory(value); }}>{value}</button>)}
         </nav>
         <div className="catalog-tools">
-          <h2>{category === '전체' ? '전체 메뉴' : category} <span>{filtered.length}</span></h2><span>원하는 메뉴를 선택해 주세요</span>
+          <h2>{category === '전체' ? '전체 메뉴' : category} <span>{filtered.length}</span></h2><span className={notice ? 'catalog-notice' : ''} role="status" aria-live="polite">{notice || '원하는 메뉴를 선택해 주세요'}</span>
         </div>
         <div className="product-grid" ref={grid}>
           {filtered.map(item => <button className="product" key={item.id} onClick={() => select(item)} aria-label={`${item.name} ${won(item.price)} 선택`}>
@@ -231,7 +231,6 @@ function App() {
     {(dialog === 'reset' || dialog === 'clear') && <Modal label={dialog === 'reset' ? '처음으로' : '전체 삭제'} onClose={() => setDialog(null)}>
       <h2>{dialog === 'reset' ? '처음으로 돌아갈까요?' : '모두 삭제할까요?'}</h2><p className="confirm-note">담은 메뉴가 삭제됩니다.</p><button className="primary" onClick={() => { if (dialog === 'reset') reset(); else { setCart([]); setDialog(null); } }}>확인 <Check size={21} /></button><button className="secondary" onClick={() => setDialog(null)}>취소</button>
     </Modal>}
-    <div className={`toast ${notice ? 'visible' : ''}`} role="status" aria-live="polite">{notice}</div>
   </div>;
 }
 
