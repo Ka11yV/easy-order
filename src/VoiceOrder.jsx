@@ -14,6 +14,9 @@ export default function VoiceOrder() {
   const [host, setHost] = useState(document.body);
   const session = useRef(null);
   const ack = useRef(null);
+  // Kept in a ref so in-flight async steps read the latest choice.
+  const slow = useRef(false);
+  const [slowSpeech, setSlowSpeech] = useState(false);
   useEffect(() => {
     // A native modal makes outside controls inert. Keep the same voice session,
     // but render its controls inside the current modal so stop/mic stay usable.
@@ -77,7 +80,7 @@ export default function VoiceOrder() {
       const early = await Promise.race([request, new Promise(resolve => setTimeout(resolve, ACK_DELAY_MS))]);
       if (!early && ack.current && live(current)) {
         setMessage(ack.current);
-        try { await playSpeech(await callVoice('speak', { text: ack.current }), current.signal); }
+        try { await playSpeech(await callVoice('speak', { text: ack.current, slow: slow.current }), current.signal); }
         catch { /* The acknowledgement is optional; the real result is still spoken below. */ }
       }
       const outcome = await request;
@@ -87,7 +90,7 @@ export default function VoiceOrder() {
       } else result = outcome.value;
       if (!live(current)) return;
       setPhase('speaking'); setMessage(result.message);
-      const audio = await callVoice('speak', { text: result.message });
+      const audio = await callVoice('speak', { text: result.message, slow: slow.current });
       if (!live(current)) return;
       await playSpeech(audio, current.signal);
       if (!live(current)) return;
@@ -112,7 +115,7 @@ export default function VoiceOrder() {
       if (!live(current)) return;
       if (greeting.message) {
         setPhase('speaking'); setMessage(greeting.message);
-        const audio = await callVoice('speak', { text: greeting.message });
+        const audio = await callVoice('speak', { text: greeting.message, slow: slow.current });
         if (!live(current)) return;
         await playSpeech(audio, current.signal);
       }
@@ -124,7 +127,8 @@ export default function VoiceOrder() {
   const Icon = phase === 'speaking' ? Volume2 : ['connecting', 'ordering', 'stopping'].includes(phase) ? LoaderCircle : Mic;
   return createPortal(<aside ref={dock} className={`voice-dock ${active ? 'active' : ''}`} aria-label="음성 주문" data-phase={phase}>
     <div className={`voice-copy ${phase === 'error' ? 'error' : ''}`}>
-      <div className="voice-heading"><span className="voice-status-dot" /><strong>{phase === 'error' ? '연결을 확인해 주세요' : active ? '음성 주문 도우미' : '말로 편하게 주문하세요'}</strong><span className="voice-phase">{labels[phase]}</span></div>
+      <div className="voice-heading"><span className="voice-status-dot" /><strong>{phase === 'error' ? '연결을 확인해 주세요' : active ? '음성 주문 도우미' : '말로 편하게 주문하세요'}</strong><span className="voice-phase">{labels[phase]}</span>
+        <button className="voice-speed" aria-pressed={slowSpeech} onClick={() => { slow.current = !slow.current; setSlowSpeech(slow.current); }}>{slowSpeech ? '천천히 말하기 켜짐' : '천천히 말하기'}</button></div>
       <div className="voice-message" role="status" aria-live="polite" tabIndex={0}>{message || '메뉴와 수량을 말씀하시면 주문을 도와드릴게요.'}</div>
       {transcript && <div className="voice-transcript"><span>인식한 말씀</span> {transcript}</div>}
     </div>

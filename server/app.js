@@ -104,7 +104,7 @@ export function createAgentApp({ origin, client = new JevClient(), speech = new 
         const text = operation === 'speak' && payload?.text === ACK ? ACK : lastResult;
         if (operation === 'speak' && payload?.text !== text) throw new AgentError('재생할 안내가 없습니다.', 'SPEECH_INPUT');
         const controller = new AbortController(); speechRequests.add(controller);
-        try { return operation === 'token' ? await speech.token(controller.signal) : await speech.synthesize(text, controller.signal); }
+        try { return operation === 'token' ? await speech.token(controller.signal) : await speech.synthesize(text, controller.signal, { slow: payload?.slow === true }); }
         finally { speechRequests.delete(controller); }
       }
       throw new AgentError('지원하지 않는 음성 작업입니다.', 'INPUT');

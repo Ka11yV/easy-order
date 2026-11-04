@@ -83,3 +83,14 @@ test('TTS cache evicts least-recently-used audio, keeping frequently replayed pr
     assert.ok(await cache.get(key(3)));
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
+
+test('slow speech lowers the TTS speed and is cached separately from normal speech', async () => {
+  const bodies = [];
+  const service = new ElevenSpeech({ cacheDir: null, apiKey: 'k', voiceId: 'v', fetchImpl: async (_url, options) => {
+    bodies.push(JSON.parse(options.body)); return { ok: true, arrayBuffer: async () => Uint8Array.from([1]).buffer };
+  } });
+  await service.synthesize('천천히 안내합니다.', undefined, { slow: true });
+  await service.synthesize('천천히 안내합니다.');
+  assert.equal(bodies[0].voice_settings.speed, .8);
+  assert.equal(bodies[1].voice_settings.speed, undefined, 'normal speech keeps existing cache keys');
+});

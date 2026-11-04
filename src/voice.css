@@ -20,6 +20,8 @@
 .voice-heading { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: #2165d6; font-size: clamp(13px, 1.6vw, 18px); margin-bottom: 8px; }
 .voice-status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
 .voice-phase { color: #596b83; font-size: .85em; margin-left: 4px; }
+.voice-speed { margin-left: auto; min-height: 36px; padding: 4px 14px; border-radius: 999px; background: #fff; border: 1px solid #c7d6ee; color: #2165d6; font-size: .85em; font-weight: 600; }
+.voice-speed[aria-pressed="true"] { background: #2165d6; border-color: #2165d6; color: #fff; }
 .voice-message {
   max-height: min(18dvh, 180px);
   overflow-y: auto;

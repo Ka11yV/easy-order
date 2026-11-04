@@ -53,8 +53,9 @@ async function setup(t, { speechConfigured = true, ttsFails = false, verifySteps
   const origin = `http://127.0.0.1:${server.address().port}`;
   const client = new FixtureJev();
   const spoken = [];
+  const speechOptions = [];
   const speech = { configured: speechConfigured, token: async () => ({ token: 'test-single-use-token' }),
-    synthesize: async text => { if (ttsFails && !text.includes('드시고 가시나요')) throw new Error('fixture provider failure'); spoken.push(text); return { audio: silentWav(), mime: 'audio/wav' }; } };
+    synthesize: async (text, _signal, options) => { speechOptions.push(options); if (ttsFails && !text.includes('드시고 가시나요')) throw new Error('fixture provider failure'); spoken.push(text); return { audio: silentWav(), mime: 'audio/wav' }; } };
   const service = createAgentApp({ origin, client, speech, headless: true, verifySteps, browserOptions: { launchOptions: {
     args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', '--autoplay-policy=no-user-gesture-required'],
   } } });
@@ -87,7 +88,7 @@ async function setup(t, { speechConfigured = true, ttsFails = false, verifySteps
     await page.waitForFunction(() => ['listening', 'idle', 'error'].includes(document.querySelector('.voice-dock')?.dataset.phase), null, { timeout: 40000 });
     return { previous, phase: await page.locator('.voice-dock').getAttribute('data-phase') };
   };
-  return { ...service, origin, page, call, client, say, spoken, sockets, chunks };
+  return { ...service, origin, page, call, client, say, spoken, speechOptions, sockets, chunks };
 }
 
 test('one kiosk: microphone → STT → JEV clicks → TTS → spoken payment confirmation', { timeout: 90000 }, async t => {
@@ -426,4 +427,15 @@ test('sold-out menus are disabled for touch and declined by voice without changi
   await page.getByRole('button', { name: '포장', exact: true }).click();
   await page.getByRole('button', { name: '아메리카노 품절', exact: true }).waitFor();
   assert.ok(await page.getByRole('button', { name: '아메리카노 품절', exact: true }).isDisabled());
+});
+
+test('the slow-speech toggle applies to spoken guidance and stays out of kiosk automation', { timeout: 30000 }, async t => {
+  const { page, speechOptions, browser } = await setup(t);
+  const toggle = page.locator('.voice-speed');
+  await toggle.click();
+  assert.equal(await toggle.getAttribute('aria-pressed'), 'true');
+  await page.getByRole('button', { name: '음성 주문 시작' }).click();
+  await page.locator('.voice-dock[data-phase="listening"]').waitFor();
+  assert.deepEqual(speechOptions.at(-1), { slow: true });
+  assert.ok(!(await browser.snapshot()).controls.some(control => control.name.includes('천천히')));
 });
