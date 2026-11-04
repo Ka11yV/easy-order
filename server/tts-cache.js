@@ -1,12 +1,19 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { mkdir, readFile, writeFile, rename, readdir, stat, unlink } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, rename, readdir, stat, unlink, utimes } from 'node:fs/promises';
 import { join } from 'node:path';
 export const audioCacheKey = settings => createHash('sha256').update(JSON.stringify(settings)).digest('hex');
 export class TtsCache {
   constructor(directory, { maxEntries = 256, maxBytes = 128 * 1024 * 1024 } = {}) { this.directory = directory; this.maxEntries = maxEntries; this.maxBytes = maxBytes; }
   async get(key) {
     if (!this.directory) return null;
-    try { const data = await readFile(join(this.directory, `${key}.mp3`)); return data.length && data.length <= 8 * 1024 * 1024 ? data : null; } catch { return null; }
+    const file = join(this.directory, `${key}.mp3`);
+    try {
+      const data = await readFile(file);
+      if (!data.length || data.length > 8 * 1024 * 1024) return null;
+      // Refresh mtime so eviction is least-recently-used: frequent prompts (greeting, payment) stay cached.
+      const now = new Date(); await utimes(file, now, now).catch(() => {});
+      return data;
+    } catch { return null; }
   }
   async put(key, audio, signal) {
     if (!this.directory || signal?.aborted) return;
