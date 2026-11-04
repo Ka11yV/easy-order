@@ -4,7 +4,7 @@ import { AgentError, choice } from './jev.js';
 import { planCommand, expectedCart, cartMatches, menu } from './planner.js';
 
 export class OrderRunner {
-  constructor({ browser, client, emit }) { this.browser = browser; this.client = client; this.emit = emit; this.pending = null; this.clarification = null; this.points = null; }
+  constructor({ browser, client, emit, verifySteps = true }) { this.browser = browser; this.client = client; this.emit = emit; this.verifySteps = verifySteps; this.pending = null; this.clarification = null; this.points = null; }
   log(message, extra = {}) { this.emit({ type: 'step', message, ...extra }); }
   async step(instruction, locator, signal, { value } = {}) {
     signal.throwIfAborted();
@@ -14,6 +14,12 @@ export class OrderRunner {
     if (!ref || await locator.count() !== 1) throw new AgentError('조작할 대상을 명확하게 찾지 못했습니다.', 'TARGET');
     const target = snapshot.controls.find(item => item.ref === ref);
     if (!target || target.disabled) throw new AgentError('현재 화면에서 이 작업을 할 수 없습니다.', 'TARGET');
+    // Optional fast path: the target is already fixed by the plan, so skip the JEV confirmation.
+    // Fingerprint checks, option verification and the final cart comparison still apply.
+    if (!this.verifySteps) {
+      await this.browser.execute({ ref, type: value === undefined ? 'click' : 'fill', value }, snapshot, signal);
+      return this.log(instruction, { phase: 'executed', target: target.name });
+    }
     const criteria = Object.fromEntries(snapshot.controls.filter(el => !el.disabled && el.type === 'button' && el.region === target.region).map(el => [el.ref, `클릭: ${el.name}${el.pressed ? ` (선택=${el.pressed})` : ''}`]));
     if (value !== undefined) criteria[ref] = `입력창 ${target.name}에 "${value}" 입력`;
     criteria.blocked = '현재 화면에서 수행 불가 또는 요청이 불명확함';

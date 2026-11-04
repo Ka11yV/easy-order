@@ -4,7 +4,11 @@ import { KioskBrowser } from './browser.js';
 import { OrderRunner } from './runner.js';
 import { ElevenSpeech } from './speech.js';
 
-export function createAgentApp({ origin, client = new JevClient(), speech = new ElevenSpeech(), headless = false, browserOptions = {} } = {}) {
+// Spoken while a long request is still running, so users hear a response quickly.
+export const ACK = '네, 확인하고 있어요.';
+
+export function createAgentApp({ origin, client = new JevClient(), speech = new ElevenSpeech(), headless = false, browserOptions = {},
+  verifySteps = process.env.JEV_VERIFY_STEPS !== 'false' } = {}) {
   const app = express();
   let active = null, status = 'idle', history = [], lastResult = null;
   const speechRequests = new Set();
@@ -18,7 +22,7 @@ export function createAgentApp({ origin, client = new JevClient(), speech = new 
   // Count decision round-trips per utterance: they dominate response latency.
   let decisions = 0;
   const counted = Object.create(client, { decide: { value: (...args) => { decisions++; return client.decide(...args); } } });
-  const runner = new OrderRunner({ browser, client: counted, emit });
+  const runner = new OrderRunner({ browser, client: counted, emit, verifySteps });
   const metrics = createMetrics();
   const state = () => ({ configured: client.configured, speechConfigured: speech.configured, browserReady: browser.ready,
     busy: Boolean(active), status, confirmation: runner.pending, history, metrics: metrics.summary() });
@@ -82,7 +86,7 @@ export function createAgentApp({ origin, client = new JevClient(), speech = new 
   // Exposed only to the very same Playwright page that shows the kiosk, never to another tab.
   async function request(operation, payload) {
     try {
-      if (operation === 'config') return { configured: client.configured, speechConfigured: speech.configured, stt: 'scribe_v2_realtime' };
+      if (operation === 'config') return { configured: client.configured, speechConfigured: speech.configured, stt: 'scribe_v2_realtime', ack: ACK };
       if (operation === 'begin') {
         if (active) throw new AgentError('주문을 처리하고 있습니다.', 'BUSY');
         const snapshot = await browser.snapshot();
@@ -95,9 +99,10 @@ export function createAgentApp({ origin, client = new JevClient(), speech = new 
       if (operation === 'stop') return await stop();
       if (operation === 'utterance') return await utterance(payload?.text);
       if (operation === 'token' || operation === 'speak') {
-        if (operation === 'speak' && payload?.text !== lastResult) throw new AgentError('재생할 안내가 없습니다.', 'SPEECH_INPUT');
+        const text = operation === 'speak' && payload?.text === ACK ? ACK : lastResult;
+        if (operation === 'speak' && payload?.text !== text) throw new AgentError('재생할 안내가 없습니다.', 'SPEECH_INPUT');
         const controller = new AbortController(); speechRequests.add(controller);
-        try { return operation === 'token' ? await speech.token(controller.signal) : await speech.synthesize(lastResult, controller.signal); }
+        try { return operation === 'token' ? await speech.token(controller.signal) : await speech.synthesize(text, controller.signal); }
         finally { speechRequests.delete(controller); }
       }
       throw new AgentError('지원하지 않는 음성 작업입니다.', 'INPUT');

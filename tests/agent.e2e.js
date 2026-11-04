@@ -4,7 +4,7 @@ import express from 'express';
 import { createServer } from 'node:http';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
-import { createAgentApp } from '../server/app.js';
+import { createAgentApp, ACK } from '../server/app.js';
 import { menu } from '../server/planner.js';
 
 // A deterministic JEV fixture only exists in tests. Production never falls back to it.
@@ -48,14 +48,14 @@ function silentWav() {
   data.writeUInt32LE(16000, 28); data.writeUInt16LE(2, 32); data.writeUInt16LE(16, 34); data.write('data', 36); data.writeUInt32LE(1600, 40);
   return data.toString('base64');
 }
-async function setup(t, { speechConfigured = true, ttsFails = false } = {}) {
+async function setup(t, { speechConfigured = true, ttsFails = false, verifySteps = true } = {}) {
   const server = createServer(); await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const origin = `http://127.0.0.1:${server.address().port}`;
   const client = new FixtureJev();
   const spoken = [];
   const speech = { configured: speechConfigured, token: async () => ({ token: 'test-single-use-token' }),
     synthesize: async text => { if (ttsFails && !text.includes('드시고 가시나요')) throw new Error('fixture provider failure'); spoken.push(text); return { audio: silentWav(), mime: 'audio/wav' }; } };
-  const service = createAgentApp({ origin, client, speech, headless: true, browserOptions: { launchOptions: {
+  const service = createAgentApp({ origin, client, speech, headless: true, verifySteps, browserOptions: { launchOptions: {
     args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', '--autoplay-policy=no-user-gesture-required'],
   } } });
   const dist = fileURLToPath(new URL('../dist/', import.meta.url));
@@ -115,7 +115,8 @@ test('one kiosk: microphone → STT → JEV clicks → TTS → spoken payment co
   assert.equal((await browser.snapshot()).orderNumber, '101');
   assert.equal(browser.context.pages().length, 1);
   assert.ok(await page.evaluate(() => window.__testMediaTracks.every(track => track.readyState === 'ended')));
-  assert.equal(spoken.length, 6); assert.equal(sockets.length, 5);
+  assert.ok(spoken.includes(ACK), 'multi-step orders are acknowledged before the result');
+  assert.equal(spoken.filter(text => text !== ACK).length, 6); assert.equal(sockets.length, 5);
   assert.equal(spoken[0], '드시고 가시나요? 아니면 포장하시나요?');
   assert.ok(spoken.some(text => text.includes('두 잔'))); assert.ok(chunks.length > 0);
   assert.deepEqual(errors, []);
@@ -398,4 +399,18 @@ test('large quantities need one JEV decision for the stepper, and metrics record
   assert.ok(metrics.p95Ms > 0 && metrics.avgDecisions === tasks.length);
   assert.equal(history.at(-1).decisions, tasks.length);
   assert.ok(!JSON.stringify(metrics).includes('아메리카노'));
+});
+
+test('JEV_VERIFY_STEPS=false skips per-click confirmation but still verifies the cart; only the fixed acknowledgement is speakable', { timeout: 30000 }, async t => {
+  const { call, client, browser, state } = await setup(t, { verifySteps: false });
+  const tasks = [];
+  const decide = client.decide.bind(client);
+  client.decide = (input, ...rest) => { tasks.push(input.task ?? 'plan'); return decide(input, ...rest); };
+  const result = await call('utterance', { text: '아이스 아메리카노 두 잔 포장' });
+  assert.equal(result.error, undefined, result.error);
+  assert.equal((await browser.snapshot()).cart[0].quantity, 2);
+  assert.ok(tasks.every(task => task === 'plan' || task === 'add'), `only planning decisions expected: ${tasks}`);
+  assert.equal(state().metrics.avgDecisions, tasks.length);
+  assert.ok(!(await call('speak', { text: ACK })).error);
+  assert.equal((await call('speak', { text: '임의 문장' })).code, 'SPEECH_INPUT');
 });

@@ -1,8 +1,10 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Mic, Square, Volume2, LoaderCircle } from 'lucide-react';
-import { callVoice, listen, playSpeech } from './speech.js';
+import { callVoice, listen, playSpeech, preloadSpeech } from './speech.js';
 import './voice.css';
+
+const ACK_DELAY_MS = 700;
 
 export default function VoiceOrder() {
   const [phase, setPhase] = useState('idle');
@@ -11,6 +13,7 @@ export default function VoiceOrder() {
   const dock = useRef(null);
   const [host, setHost] = useState(document.body);
   const session = useRef(null);
+  const ack = useRef(null);
   useEffect(() => {
     // A native modal makes outside controls inert. Keep the same voice session,
     // but render its controls inside the current modal so stop/mic stay usable.
@@ -69,11 +72,19 @@ export default function VoiceOrder() {
     release(current); setPhase('ordering'); setTranscript(text);
     let result;
     try {
-      try { result = await callVoice('utterance', { text }); }
-      catch (error) {
-        if (!['CLARIFY', 'UNCERTAIN'].includes(error.code)) throw error;
-        result = { message: error.message };
+      const request = callVoice('utterance', { text }).then(value => ({ value }), error => ({ error }));
+      // Multi-step orders take seconds; acknowledge first instead of staying silent.
+      const early = await Promise.race([request, new Promise(resolve => setTimeout(resolve, ACK_DELAY_MS))]);
+      if (!early && ack.current && live(current)) {
+        setMessage(ack.current);
+        try { await playSpeech(await callVoice('speak', { text: ack.current }), current.signal); }
+        catch { /* The acknowledgement is optional; the real result is still spoken below. */ }
       }
+      const outcome = await request;
+      if (outcome.error) {
+        if (!['CLARIFY', 'UNCERTAIN'].includes(outcome.error.code)) throw outcome.error;
+        result = { message: outcome.error.message };
+      } else result = outcome.value;
       if (!live(current)) return;
       setPhase('speaking'); setMessage(result.message);
       const audio = await callVoice('speak', { text: result.message });
@@ -89,12 +100,14 @@ export default function VoiceOrder() {
     // Fullscreen requests require the user's click. Dedicated kiosk mode already fills the screen.
     document.documentElement.requestFullscreen?.().catch(() => {});
     const current = new AbortController(); session.current = current;
+    preloadSpeech(); // overlap the SDK download with the greeting
     setTranscript(''); setPhase('connecting'); setMessage('음성 주문을 연결하고 있습니다.');
     try {
       const config = await callVoice('config');
       if (!live(current)) return;
       if (!config.configured) throw new Error('JEV API 키를 설정해 주세요.');
       if (!config.speechConfigured) throw new Error('ElevenLabs API 키와 Voice ID 설정이 필요합니다.');
+      ack.current = config.ack;
       const greeting = await callVoice('begin');
       if (!live(current)) return;
       if (greeting.message) {
