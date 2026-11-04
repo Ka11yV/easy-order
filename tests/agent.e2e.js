@@ -364,3 +364,20 @@ test('a new customer on the start screen never inherits a previous pending quest
   assert.equal(runner.clarification, null);
   assert.equal(runner.points, null);
 });
+
+test('an abandoned order returns to the start screen; a finished receipt returns automatically', { timeout: 30000 }, async t => {
+  const { call, page, browser } = await setup(t);
+  await page.evaluate(() => { window.kioskIdleMs = 1500; window.kioskCompleteMs = 1500; });
+  const result = await call('utterance', { text: '아이스 아메리카노 두 잔 포장' });
+  assert.equal(result.error, undefined, result.error);
+  assert.equal((await browser.snapshot()).cart.length, 1);
+  await page.locator('.start-screen').waitFor({ timeout: 5000 });
+  assert.deepEqual((await browser.snapshot()).cart, []);
+  await page.evaluate(() => { window.kioskIdleMs = 600000; });
+  await call('utterance', { text: '아이스 아메리카노 두 잔 포장' });
+  assert.ok(!(await call('utterance', { text: '카카오페이 결제' })).error);
+  assert.ok(!(await call('utterance', { text: '건너뛰기' })).error);
+  assert.ok(!(await call('utterance', { text: '네 진행해 주세요' })).error);
+  assert.equal((await browser.snapshot()).screen, '주문 완료');
+  await page.locator('.start-screen').waitFor({ timeout: 5000 });
+});

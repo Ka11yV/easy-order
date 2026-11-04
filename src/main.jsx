@@ -6,7 +6,9 @@ import { groupsFor, normalizeOptions, optionsKey, optionsSummary, unitPrice as p
 import './style.css';
 import VoiceOrder from './VoiceOrder.jsx';
 
-const won = value => `${value.toLocaleString('ko-KR')}원`;
+const IDLE_RESET_MS = 120000;
+const COMPLETE_RETURN_MS = 20000;
+const won = value =>`${value.toLocaleString('ko-KR')}원`;
 const categories = ['전체', '커피', '논커피', '티', '에이드·주스', '스무디·프라페', '디카페인'];
 const featured = ['아메리카노', '카페라떼', '바닐라라떼', '하우스밀크 라떼', '딸기라떼', '녹차라떼'];
 const products = [...menu].sort((a, b) => {
@@ -83,6 +85,23 @@ function App() {
     const timer = setTimeout(() => setNotice(''), 2000);
     return () => clearTimeout(timer);
   }, [notice]);
+
+  // Unattended kiosk: return to the start screen so the next customer never inherits an
+  // abandoned cart, a typed phone number, or a finished receipt. Voice activity counts as use.
+  useEffect(() => {
+    if (!mode) return;
+    let last = Date.now();
+    const touch = () => { last = Date.now(); };
+    const events = ['pointerdown', 'keydown', 'wheel', 'touchstart'];
+    events.forEach(name => window.addEventListener(name, touch, { capture: true, passive: true }));
+    const timer = setInterval(() => {
+      const phase = document.querySelector('.voice-dock')?.dataset.phase;
+      if (phase && !['idle', 'error'].includes(phase)) return touch();
+      const limit = dialog === 'complete' ? window.kioskCompleteMs ?? COMPLETE_RETURN_MS : window.kioskIdleMs ?? IDLE_RESET_MS;
+      if (Date.now() - last > limit) dialog === 'complete' ? finish() : reset();
+    }, 500);
+    return () => { clearInterval(timer); events.forEach(name => window.removeEventListener(name, touch, { capture: true })); };
+  }, [mode, dialog]);
 
   function select(item, line) {
     setOptionError('');
