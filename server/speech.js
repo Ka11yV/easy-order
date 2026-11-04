@@ -3,6 +3,8 @@ import { TtsCache, audioCacheKey } from './tts-cache.js';
 import { speechText } from './korean.js';
 import { AgentError } from './jev.js';
 
+export const SLOW_SPEED = .8;
+
 // Long-lived credentials never leave Node. The browser receives a single-use STT token.
 export class ElevenSpeech {
   constructor({ apiKey = process.env.ELEVENLABS_API_KEY, voiceId = process.env.ELEVENLABS_VOICE_ID,
@@ -43,12 +45,13 @@ export class ElevenSpeech {
     if (typeof data.token !== 'string' || !data.token) throw new AgentError('음성 인식 연결 정보를 받지 못했습니다.', 'SPEECH_RESPONSE');
     return { token: data.token };
   }
-  async synthesize(text, signal) {
+  // slow: accessibility option for users who need more time to follow spoken guidance.
+  async synthesize(text, signal, { slow = false } = {}) {
     if (typeof text !== 'string' || !text.trim() || text.length > 1500) throw new AgentError('음성 안내 길이가 올바르지 않습니다.', 'SPEECH_INPUT');
     if (!this.configured) throw new AgentError('ElevenLabs 음성 설정을 확인해 주세요.', 'SPEECH_CONFIG');
     signal?.throwIfAborted();
     text = speechText(text);
-    const settings = { text, model_id: this.model, language_code: 'ko', voice_settings: { stability: .5, similarity_boost: .75 } };
+    const settings = { text, model_id: this.model, language_code: 'ko', voice_settings: { stability: .5, similarity_boost: .75, ...(slow ? { speed: SLOW_SPEED } : {}) } };
     const key = audioCacheKey({ version: 1, voiceId: this.voiceId, format: 'mp3_44100_128', ...settings });
     const cached = await this.cache.get(key);
     signal?.throwIfAborted();

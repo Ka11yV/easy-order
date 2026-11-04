@@ -1,11 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ArrowRight, Barcode, Check, Home, Minus, Plus, ShoppingBag, Trash2, UtensilsCrossed, X } from 'lucide-react';
+import { ArrowRight, Barcode, Check, Coffee, Home, Minus, Plus, ShoppingBag, Trash2, UtensilsCrossed, X } from 'lucide-react';
 import menu from './menu.json';
+import { groupsFor, normalizeOptions, optionsKey, optionsSummary, unitPrice as priceFor, optionPrice, optionButtonLabel } from './options.js';
 import './style.css';
 import VoiceOrder from './VoiceOrder.jsx';
 
-const won = value => `${value.toLocaleString('ko-KR')}원`;
+const IDLE_RESET_MS = 120000;
+const COMPLETE_RETURN_MS = 20000;
+const won = value =>`${value.toLocaleString('ko-KR')}원`;
 const categories = ['전체', '커피', '논커피', '티', '에이드·주스', '스무디·프라페', '디카페인'];
 const featured = ['아메리카노', '카페라떼', '바닐라라떼', '하우스밀크 라떼', '딸기라떼', '녹차라떼'];
 const products = [...menu].sort((a, b) => {
@@ -35,7 +38,7 @@ function Modal({ label, children, onClose, wide = false, className = '' }) {
     return () => { element.removeEventListener('cancel', cancel); previous?.focus(); };
   }, []);
   return <dialog ref={dialog} className={`modal ${wide ? 'wide' : ''} ${className}`} aria-label={label}>
-    <button className="close icon-button" aria-label="닫기" onClick={onClose}><X /></button>
+    <div className="modal-toolbar"><button className="close icon-button" aria-label="닫기" onClick={onClose}><X /></button></div>
     {children}
   </dialog>;
 }
@@ -56,12 +59,15 @@ function App() {
   const [temperature, setTemperature] = useState('ICE');
   const [quantity, setQuantity] = useState(1);
   const [shot, setShot] = useState(false);
+  const [options, setOptions] = useState({});
+  const [optionError, setOptionError] = useState('');
   const [editing, setEditing] = useState(null);
   const [dialog, setDialog] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [phone, setPhone] = useState('');
   const [orderNumber, setOrderNumber] = useState(101);
   const [notice, setNotice] = useState('');
+  const [soldOut, setSoldOut] = useState(() => new Set());
   const grid = useRef(null);
   const filtered = products.filter(item => (category === '전체' || item.category === category));
   const count = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -74,31 +80,57 @@ function App() {
   }, [dialog]);
 
   useEffect(() => { grid.current?.scrollTo(0, 0); }, [category]);
+  // Refresh the sold-out list for each customer. Without the agent server (pnpm dev) nothing is sold out.
+  useEffect(() => {
+    fetch('/api/menu-status').then(response => response.ok ? response.json() : null)
+      .then(data => { if (Array.isArray(data?.soldOut)) setSoldOut(new Set(data.soldOut)); }).catch(() => {});
+  }, [mode]);
+  useEffect(() => { setOptionError(''); }, [temperature, shot, options]);
   useEffect(() => {
     if (!notice) return;
     const timer = setTimeout(() => setNotice(''), 2000);
     return () => clearTimeout(timer);
   }, [notice]);
 
+  // Unattended kiosk: return to the start screen so the next customer never inherits an
+  // abandoned cart, a typed phone number, or a finished receipt. Voice activity counts as use.
+  useEffect(() => {
+    if (!mode) return;
+    let last = Date.now();
+    const touch = () => { last = Date.now(); };
+    const events = ['pointerdown', 'keydown', 'wheel', 'touchstart'];
+    events.forEach(name => window.addEventListener(name, touch, { capture: true, passive: true }));
+    const timer = setInterval(() => {
+      const phase = document.querySelector('.voice-dock')?.dataset.phase;
+      if (phase && !['idle', 'error'].includes(phase)) return touch();
+      const limit = dialog === 'complete' ? window.kioskCompleteMs ?? COMPLETE_RETURN_MS : window.kioskIdleMs ?? IDLE_RESET_MS;
+      if (Date.now() - last > limit) dialog === 'complete' ? finish() : reset();
+    }, 500);
+    return () => { clearInterval(timer); events.forEach(name => window.removeEventListener(name, touch, { capture: true })); };
+  }, [mode, dialog]);
+
   function select(item, line) {
+    setOptionError('');
     setSelected(item);
     setTemperature(line?.temperature ?? (item.temperatures.includes('ICE') ? 'ICE' : item.temperatures[0]));
     setQuantity(line?.quantity ?? 1);
     setShot(line?.shot ?? false);
+    setOptions(line?.options ?? {});
     setEditing(line?.key ?? null);
   }
   function add() {
-    const key = `${selected.id}-${temperature}-${shot}`;
-    const unitPrice = selected.price + (shot ? 500 : 0);
+    const validOptions = normalizeOptions(selected, temperature, options);
+    const key = `${selected.id}-${temperature}-${shot}-${optionsKey(validOptions)}`;
+    const unitPrice = priceFor(selected, shot, validOptions);
     const others = cart.filter(item => item.key !== editing);
     const existing = others.find(item => item.key === key);
     if ((existing?.quantity ?? 0) + quantity > 99) {
-      setNotice('같은 메뉴는 최대 99개까지 담을 수 있습니다.');
+      setOptionError(`같은 메뉴는 최대 99잔까지 담을 수 있습니다. 이미 ${existing.quantity}잔이 담겨 있어 ${99 - existing.quantity}잔까지 추가할 수 있습니다.`);
       return;
     }
     setCart(existing
       ? others.map(item => item.key === key ? { ...item, quantity: item.quantity + quantity } : item)
-      : [...others, { ...selected, key, quantity, temperature, shot, unitPrice }]);
+      : [...others, { ...selected, key, quantity, temperature, shot, options: validOptions, unitPrice }]);
     setSelected(null);
     setNotice(editing ? '수정되었습니다.' : '담았습니다.');
   }
@@ -109,19 +141,20 @@ function App() {
   function finish() { reset(); setOrderNumber(number => number + 1); }
 
   if (!mode) return <main className="start-screen" aria-label="매장 또는 포장 선택">
+    <div className="start-intro"><span className="brand"><Coffee size={24} strokeWidth={1.8} /> easy order<span className="brand-dot">.</span></span><h1>어디서 즐기시나요?</h1><p>좋아하는 한 잔, 편하게 주문하세요.</p></div>
     <div className="start-options">
-      <button className="start-button dine-in" onClick={() => setMode('매장')}>
-        <UtensilsCrossed aria-hidden="true" strokeWidth={1.3} /><strong>매장</strong>
+      <button className="start-button dine-in" aria-label="매장" onClick={() => setMode('매장')}>
+        <UtensilsCrossed aria-hidden="true" strokeWidth={1.3} /><strong>매장</strong><span>여유롭게 즐길게요 <ArrowRight size={20} /></span>
       </button>
-      <button className="start-button takeout" onClick={() => setMode('포장')}>
-        <ShoppingBag aria-hidden="true" strokeWidth={1.3} /><strong>포장</strong>
+      <button className="start-button takeout" aria-label="포장" onClick={() => setMode('포장')}>
+        <ShoppingBag aria-hidden="true" strokeWidth={1.3} /><strong>포장</strong><span>가지고 갈게요 <ArrowRight size={20} /></span>
       </button>
     </div>
   </main>;
 
   return <div className="kiosk">
     <header className="header">
-      <h1>메뉴 선택</h1>
+      <h1 className="brand" aria-label="easy order"><Coffee size={26} strokeWidth={1.8} /> easy order<span className="brand-dot">.</span></h1>
       <div className="header-actions">
         <button className="mode-button" onClick={() => setMode(mode === '매장' ? '포장' : '매장')}>
           {mode === '매장' ? <UtensilsCrossed size={21} /> : <ShoppingBag size={21} />}
@@ -136,11 +169,11 @@ function App() {
           {categories.map(value => <button key={value} aria-pressed={category === value} className={category === value ? 'active' : ''} onClick={() => { setCategory(value); }}>{value}</button>)}
         </nav>
         <div className="catalog-tools">
-          <span>{category} <b>{filtered.length}</b></span>
+          <h2>{category === '전체' ? '전체 메뉴' : category} <span>{filtered.length}</span></h2><span className={notice ? 'catalog-notice' : ''} role="status" aria-live="polite">{notice || '원하는 메뉴를 선택해 주세요'}</span>
         </div>
         <div className="product-grid" ref={grid}>
-          {filtered.map(item => <button className="product" key={item.id} onClick={() => select(item)} aria-label={`${item.name} ${won(item.price)} 선택`}>
-            <div className="product-photo"><img src={item.image} alt={item.name} draggable="false" /></div>
+          {filtered.map(item => <button className="product" key={item.id} disabled={soldOut.has(item.name)} onClick={() => select(item)} aria-label={soldOut.has(item.name) ? `${item.name} 품절` : `${item.name} ${won(item.price)} 선택`}>
+            <div className="product-photo"><img src={item.image} alt={item.name} draggable="false" />{soldOut.has(item.name) && <span className="sold-out-badge">품절</span>}</div>
             <h2>{item.name}</h2><strong className="product-price">{won(item.price)}</strong>
           </button>)}
           {!filtered.length && <div className="no-results"><p>메뉴가 없습니다.</p><button onClick={() => { setCategory('전체'); }}>전체 메뉴</button></div>}
@@ -149,11 +182,11 @@ function App() {
       <aside className="cart" aria-label="장바구니">
         <div className="cart-heading"><h2>주문 내역 <span>{count}</span></h2><button className="clear-cart" disabled={!cart.length} onClick={() => setDialog('clear')}><Trash2 size={17} /> 전체 삭제</button></div>
         <div className="cart-list">
-          {cart.length ? cart.map(item => <article className="cart-line" key={item.key}>
+          {cart.length ? cart.map(item => <article className="cart-line" key={item.key} data-options={JSON.stringify(item.options || {})} data-temperature={item.temperature} data-shot={String(item.shot)}>
             <img src={item.images?.[item.temperature] || item.image} alt="" />
             <div className="cart-line-content">
               <div className="cart-line-heading"><h3>{item.name}</h3><button className="delete-line" aria-label={`${item.name} 삭제`} onClick={() => setCart(cart.filter(line => line.key !== item.key))}><X size={18} /></button></div>
-              <button className="edit-options" aria-label={`${item.name} 옵션 수정`} onClick={() => select(item, item)}>{item.temperature}{item.shot ? ' · 샷 추가' : ''}<span>변경</span></button>
+              <button className="edit-options" aria-label={`${item.name} 옵션 수정`} onClick={() => select(item, item)}><span className="line-options">{[item.temperature, item.shot && '샷 추가', optionsSummary(item.options)].filter(Boolean).join(' · ')}</span><span>변경</span></button>
               <div className="cart-line-bottom"><Stepper label={item.name} value={item.quantity} onChange={quantity => setCart(cart.map(line => line.key === item.key ? { ...line, quantity } : line))} /><strong>{won(item.quantity * item.unitPrice)}</strong></div>
             </div>
           </article>) : <div className="empty-cart"><ShoppingBag size={38} strokeWidth={1.2} /><p>메뉴를 선택해주세요.</p></div>}
@@ -162,17 +195,26 @@ function App() {
       </aside>
     </div>
     {selected && <Modal wide label={`${selected.name} 옵션 선택`} onClose={() => setSelected(null)}>
-      <div className="options-layout"><div className="options-photo"><img src={selected.images?.[temperature] || selected.image} alt={selected.name} /></div><div className="options-content">
+      <div className="options-layout"><div className="options-photo"><img src={selected.images?.[temperature] || selected.image} alt={selected.name} /></div><div className="options-content" data-options={JSON.stringify(normalizeOptions(selected, temperature, options))}>
         <h2>{selected.name}</h2><p className="base-price">{won(selected.price)}</p>
-        <fieldset><legend>온도 <span>필수</span></legend><div className="temperatures">{selected.temperatures.map(value => <button key={value} className={temperature === value ? 'selected' : ''} aria-pressed={temperature === value} onClick={() => setTemperature(value)}>{value === 'HOT' ? 'HOT 따뜻하게' : 'ICE 차갑게'}{temperature === value && <Check size={18} />}</button>)}</div></fieldset>
+        <fieldset><legend>온도 <span>필수</span></legend><div className="temperatures">{selected.temperatures.map(value => <button key={value} className={temperature === value ? 'selected' : ''} aria-pressed={temperature === value} onClick={() => { setTemperature(value); setOptions(current => normalizeOptions(selected, value, current)); }}>{value === 'HOT' ? 'HOT 따뜻하게' : 'ICE 차갑게'}{temperature === value && <Check size={18} />}</button>)}</div></fieldset>
         {selected.category === '커피' && <fieldset><legend>추가 옵션</legend><button className={`shot-option ${shot ? 'selected' : ''}`} aria-pressed={shot} onClick={() => setShot(!shot)}><span>샷 추가 <small>+500원</small></span><span className="check-box">{shot && <Check size={17} />}</span></button></fieldset>}
-        <div className="quantity"><span>수량</span><Stepper label="선택" value={quantity} onChange={setQuantity} /></div>
-        <button className="primary" onClick={add}><strong>{won((selected.price + (shot ? 500 : 0)) * quantity)}</strong><span>{editing ? '수정' : '담기'} <Plus size={20} /></span></button>
+        <div className="custom-options">
+          {groupsFor(selected, temperature).map(group => <fieldset key={group.id}><legend>{group.label}</legend><div className="option-choices" role="group" aria-label={group.label}>
+            {group.values.map(value => <button key={value.id} aria-label={optionButtonLabel(value)} aria-pressed={(options[group.id] || 'normal') === value.id} onClick={() => setOptions(current => normalizeOptions(selected, temperature, { ...current, [group.id]: value.id }))}>
+              <span>{value.label}</span><small>{value.price ? `+${won(value.price)}` : '무료'}</small>
+            </button>)}
+          </div></fieldset>)}
+        </div>
+        {(shot || optionPrice(options) > 0) && <p className="option-surcharge">추가 금액 <strong>한 잔당 +{won((shot ? 500 : 0) + optionPrice(options))}</strong></p>}
+        <div className="quantity"><span>수량</span><Stepper label="선택" value={quantity} onChange={value => { setQuantity(value); setOptionError(''); }} /></div>
+        <div className="option-error" role="alert" aria-live="assertive">{optionError}</div>
+        <button className="primary" onClick={add}><strong>{won(priceFor(selected, shot, options) * quantity)}</strong><span>{editing ? '수정' : '담기'} <Plus size={20} /></span></button>
       </div></div>
     </Modal>}
     {dialog === 'review' && <Modal label="주문 확인" onClose={() => setDialog(null)}>
       <h2>주문 확인</h2><p className="review-mode">{mode} · {count}잔</p>
-      <div className="review-list">{cart.map(item => <div key={item.key}><div><strong>{item.name} × {item.quantity}</strong><p>{item.temperature}{item.shot ? ' · 샷 추가' : ''}</p></div><strong>{won(item.quantity * item.unitPrice)}</strong></div>)}</div>
+      <div className="review-list">{cart.map(item => <div key={item.key}><div><strong>{item.name} × {item.quantity}</strong><p>{[item.temperature, item.shot && '샷 추가', optionsSummary(item.options)].filter(Boolean).join(' · ')}</p></div><strong>{won(item.quantity * item.unitPrice)}</strong></div>)}</div>
       <div className="total"><span>합계</span><strong>{won(total)}</strong></div>
       <p className="demo-note">체험용 가격 · 실제 결제되지 않습니다.</p>
       <button className="primary" onClick={() => { setPaymentMethod(null); setDialog('points'); }}>결제하기 <ArrowRight size={22} /></button><button className="secondary" onClick={() => setDialog(null)}>돌아가기</button>
@@ -218,7 +260,6 @@ function App() {
     {(dialog === 'reset' || dialog === 'clear') && <Modal label={dialog === 'reset' ? '처음으로' : '전체 삭제'} onClose={() => setDialog(null)}>
       <h2>{dialog === 'reset' ? '처음으로 돌아갈까요?' : '모두 삭제할까요?'}</h2><p className="confirm-note">담은 메뉴가 삭제됩니다.</p><button className="primary" onClick={() => { if (dialog === 'reset') reset(); else { setCart([]); setDialog(null); } }}>확인 <Check size={21} /></button><button className="secondary" onClick={() => setDialog(null)}>취소</button>
     </Modal>}
-    <div className={`toast ${notice ? 'visible' : ''}`} role="status" aria-live="polite">{notice}</div>
   </div>;
 }
 

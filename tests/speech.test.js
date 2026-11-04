@@ -61,3 +61,36 @@ test('TTS cache survives new instances, normalizes counters and separates voices
   await assert.rejects(new ElevenSpeech(settings).synthesize('두 잔입니다.', controller.signal), /stop/);
   assert.equal(calls, 2);
 });
+
+test('TTS cache evicts least-recently-used audio, keeping frequently replayed prompts', async () => {
+  const { mkdtemp, rm } = await import('node:fs/promises');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const { TtsCache } = await import('../server/tts-cache.js');
+  const directory = await mkdtemp(join(tmpdir(), 'tts-lru-'));
+  try {
+    const cache = new TtsCache(directory, { maxEntries: 2 });
+    const key = n => String(n).repeat(64);
+    await cache.put(key(1), Buffer.from('greeting'));
+    await new Promise(resolve => setTimeout(resolve, 20));
+    await cache.put(key(2), Buffer.from('other'));
+    await new Promise(resolve => setTimeout(resolve, 20));
+    assert.ok(await cache.get(key(1)), 'reading refreshes recency');
+    await new Promise(resolve => setTimeout(resolve, 20));
+    await cache.put(key(3), Buffer.from('new'));
+    assert.ok(await cache.get(key(1)));
+    assert.equal(await cache.get(key(2)), null);
+    assert.ok(await cache.get(key(3)));
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});
+
+test('slow speech lowers the TTS speed and is cached separately from normal speech', async () => {
+  const bodies = [];
+  const service = new ElevenSpeech({ cacheDir: null, apiKey: 'k', voiceId: 'v', fetchImpl: async (_url, options) => {
+    bodies.push(JSON.parse(options.body)); return { ok: true, arrayBuffer: async () => Uint8Array.from([1]).buffer };
+  } });
+  await service.synthesize('천천히 안내합니다.', undefined, { slow: true });
+  await service.synthesize('천천히 안내합니다.');
+  assert.equal(bodies[0].voice_settings.speed, .8);
+  assert.equal(bodies[1].voice_settings.speed, undefined, 'normal speech keeps existing cache keys');
+});

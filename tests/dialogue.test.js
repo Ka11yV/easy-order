@@ -15,7 +15,7 @@ function setup() {
       a = { intent: 'add', mode: '포장', payment: 'unspecified', checkout: 'no', item_count: '1', menu1: String((isCube ? cube : green).id),
         temperature1: isCube ? 'HOT' : state.userRequest.includes('아이스') ? 'ICE' : 'unspecified', quantity1: 'unspecified', shot1: 'unspecified' };
     }
-    const answers = Object.fromEntries(Object.keys(questions).map(k => [k, a[k]]));
+    const answers = Object.fromEntries(Object.keys(questions).map(k => [k, a[k] ?? 'unspecified']));
     return { answers, confidences: Object.fromEntries(Object.keys(questions).map(k => [k, 1])) };
   } };
   const runner = new OrderRunner({ client, emit: () => {}, browser: { snapshot: async () => ({ cart: [], mode: '포장', screen: '메뉴 선택' }) } });

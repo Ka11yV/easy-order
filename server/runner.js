@@ -1,9 +1,10 @@
+import { optionGroups, optionsKey, optionsSummary, optionButtonLabel } from '../src/options.js';
 import { cupCount, phoneNumber } from './korean.js';
 import { AgentError, choice } from './jev.js';
 import { planCommand, expectedCart, cartMatches, menu } from './planner.js';
 
 export class OrderRunner {
-  constructor({ browser, client, emit }) { this.browser = browser; this.client = client; this.emit = emit; this.pending = null; this.clarification = null; this.points = null; }
+  constructor({ browser, client, emit, verifySteps = true }) { this.browser = browser; this.client = client; this.emit = emit; this.verifySteps = verifySteps; this.pending = null; this.clarification = null; this.points = null; }
   log(message, extra = {}) { this.emit({ type: 'step', message, ...extra }); }
   async step(instruction, locator, signal, { value } = {}) {
     signal.throwIfAborted();
@@ -13,6 +14,12 @@ export class OrderRunner {
     if (!ref || await locator.count() !== 1) throw new AgentError('조작할 대상을 명확하게 찾지 못했습니다.', 'TARGET');
     const target = snapshot.controls.find(item => item.ref === ref);
     if (!target || target.disabled) throw new AgentError('현재 화면에서 이 작업을 할 수 없습니다.', 'TARGET');
+    // Optional fast path: the target is already fixed by the plan, so skip the JEV confirmation.
+    // Fingerprint checks, option verification and the final cart comparison still apply.
+    if (!this.verifySteps) {
+      await this.browser.execute({ ref, type: value === undefined ? 'click' : 'fill', value }, snapshot, signal);
+      return this.log(instruction, { phase: 'executed', target: target.name });
+    }
     const criteria = Object.fromEntries(snapshot.controls.filter(el => !el.disabled && el.type === 'button' && el.region === target.region).map(el => [el.ref, `클릭: ${el.name}${el.pressed ? ` (선택=${el.pressed})` : ''}`]));
     if (value !== undefined) criteria[ref] = `입력창 ${target.name}에 "${value}" 입력`;
     criteria.blocked = '현재 화면에서 수행 불가 또는 요청이 불명확함';
@@ -29,14 +36,32 @@ export class OrderRunner {
   }
   button(name, scope = this.browser.page) { return scope.getByRole('button', { name, exact: true }); }
   async click(name, signal, scope) { await this.step(`"${name}" 버튼을 누르세요.`, this.button(name, scope), signal); }
+  // JEV approves the first press of a stepper button. Identical follow-up presses are repeated
+  // without another decision round-trip (N cups used to cost N JEV calls), but each press still
+  // goes through the fingerprinted executor and the caller verifies the final state.
+  async repeat(name, times, signal) {
+    if (times < 1) return;
+    await this.click(name, signal);
+    for (let i = 1; i < times; i++) {
+      signal.throwIfAborted();
+      if (++this.actions > 80) throw new AgentError('작업 단계 제한에 도달했습니다. 현재 주문을 확인해 주세요.', 'LIMIT');
+      const snapshot = await this.browser.snapshot();
+      const locator = this.button(name);
+      const ref = await locator.getAttribute('data-easy-ref');
+      if (!ref || await locator.count() !== 1) throw new AgentError('조작할 대상을 명확하게 찾지 못했습니다.', 'TARGET');
+      await this.browser.execute({ ref, type: 'click' }, snapshot, signal);
+    }
+    this.log(`"${name}" 버튼을 ${times}회 눌렀습니다.`, { phase: 'executed', target: name });
+  }
   async closeDialog(signal) {
     const snap = await this.browser.snapshot();
     if (!['메뉴 선택', '매장 또는 포장 선택', '주문 완료'].includes(snap.screen)) await this.click('닫기', signal);
   }
   cartLine(line) {
     return this.browser.page.locator('.cart-line').filter({ has: this.browser.page.getByRole('heading', { name: line.name, exact: true }) })
-      .filter({ has: this.browser.page.locator('.edit-options').filter({ hasText: line.shot ? `${line.temperature} · 샷 추가` : new RegExp(`^${line.temperature}변경$`) }) });
+      .and(this.browser.page.locator(`[data-temperature="${line.temperature}"][data-shot="${Boolean(line.shot)}"][data-options='${JSON.stringify(line.options || {})}']`));
   }
+
   async setMode(mode, signal) {
     const snap = await this.browser.snapshot();
     if (!mode || snap.mode === mode) return;
@@ -51,13 +76,18 @@ export class OrderRunner {
     if (snap.option.temperature !== item.temperature) await this.click(item.temperature === 'ICE' ? 'ICE 차갑게' : 'HOT 따뜻하게', signal);
     snap = await this.browser.snapshot();
     if (snap.option.shot !== item.shot) await this.click('샷 추가 +500원', signal);
-    for (let tries = 0; tries < 99; tries++) {
+    for (const group of optionGroups) {
       snap = await this.browser.snapshot();
-      if (snap.option.quantity === item.quantity) break;
-      await this.click(snap.option.quantity < item.quantity ? '선택 수량 늘리기' : '선택 수량 줄이기', signal);
+      const wanted = item.options?.[group.id] || 'normal';
+      if ((snap.option.options?.[group.id] || 'normal') !== wanted) {
+        await this.click(optionButtonLabel(group.values.find(value => value.id === wanted)), signal);
+      }
     }
     snap = await this.browser.snapshot();
-    if (snap.option.quantity !== item.quantity || snap.option.temperature !== item.temperature || snap.option.shot !== item.shot) throw new AgentError('메뉴 옵션이 일치하지 않습니다.', 'VERIFY');
+    const difference = item.quantity - snap.option.quantity;
+    await this.repeat(difference > 0 ? '선택 수량 늘리기' : '선택 수량 줄이기', Math.abs(difference), signal);
+    snap = await this.browser.snapshot();
+    if (snap.option.quantity !== item.quantity || snap.option.temperature !== item.temperature || snap.option.shot !== item.shot || optionsKey(snap.option.options) !== optionsKey(item.options)) throw new AgentError('메뉴 옵션이 일치하지 않습니다.', 'VERIFY');
     const save = page.locator('dialog[open] .options-content .primary');
     const saveLabel = (await save.innerText()).trim().replace(/\s+/g, ' ');
     await this.step(`옵션 설정이 완료되었습니다. "${saveLabel}" 버튼을 눌러 ${item.name} ${item.quantity}잔을 저장하세요.`, save, signal);
@@ -98,9 +128,9 @@ export class OrderRunner {
     }
     await this.setMode(plan.mode, signal);
     if (plan.intent === 'mode') return { message: `${plan.mode === '매장' ? '매장에서 드시는 것으로' : '포장으로'} 준비하겠습니다. 주문하실 음료를 말씀해 주세요.` };
-    if (plan.intent === 'remove') await this.step(`${plan.line.name} ${plan.line.temperature} 메뉴를 삭제하세요.`, this.cartLine(plan.line).getByRole('button', { name: `${plan.line.name} 삭제`, exact: true }), signal);
+    if (plan.intent === 'remove') await this.step(`${plan.line.name} ${plan.line.temperature} (${plan.line.shot ? '샷 추가, ' : ''}${optionsSummary(plan.line.options) || '기본 옵션'}) 메뉴를 삭제하세요.`, this.cartLine(plan.line).getByRole('button', { name: `${plan.line.name} 삭제`, exact: true }), signal);
     if (plan.intent === 'edit') {
-      await this.step(`${plan.line.name} ${plan.line.temperature}의 옵션 변경을 여세요.`, this.cartLine(plan.line).getByRole('button', { name: `${plan.line.name} 옵션 수정`, exact: true }), signal);
+      await this.step(`${plan.line.name} ${plan.line.temperature} (${plan.line.shot ? '샷 추가, ' : ''}${optionsSummary(plan.line.options) || '기본 옵션'})의 옵션 변경을 여세요.`, this.cartLine(plan.line).getByRole('button', { name: `${plan.line.name} 옵션 수정`, exact: true }), signal);
       await this.configure(plan.items[0], signal);
     }
     if (plan.intent === 'add') {
@@ -117,7 +147,7 @@ export class OrderRunner {
     const after = await this.browser.snapshot();
     if (!cartMatches(after.cart, expected)) throw new AgentError('화면의 주문 내역이 요청과 일치하지 않습니다. 현재 장바구니를 확인해 주세요.', 'VERIFY');
     if (plan.checkout) return this.preparePayment(plan.payment, signal);
-    const summary = after.cart.map(item => `${item.temperature === 'HOT' ? '따뜻한' : '아이스'} ${item.name} ${cupCount(item.quantity)}${item.shot ? ', 샷 추가' : ''}`).join(', ');
+    const summary = after.cart.map(item => `${item.temperature === 'HOT' ? '따뜻한' : '아이스'} ${item.name} ${cupCount(item.quantity)}${item.shot ? ', 샷 추가' : ''}${optionsSummary(item.options) ? `, ${optionsSummary(item.options)}` : ''}`).join(', ');
     return { message: after.cart.length ? `주문 내역은 ${summary}입니다. 추가 주문이나 결제 방법을 말씀해 주세요.` : '메뉴를 삭제했습니다. 다른 메뉴를 말씀해 주세요.', cart: after.cart };
   }
   async preparePayment(method, signal) {

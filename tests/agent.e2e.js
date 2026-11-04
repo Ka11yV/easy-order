@@ -4,7 +4,7 @@ import express from 'express';
 import { createServer } from 'node:http';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
-import { createAgentApp } from '../server/app.js';
+import { createAgentApp, ACK } from '../server/app.js';
 import { menu } from '../server/planner.js';
 
 // A deterministic JEV fixture only exists in tests. Production never falls back to it.
@@ -17,10 +17,11 @@ class FixtureJev {
     if (questions.points) return { answers: { points: state.userRequest.includes('아니') || state.userRequest.includes('건너') ? 'no' : 'yes' }, confidences: { points: 1 } };
     if (questions.confirmation) return { answers: { confirmation: state.userRequest.includes('아니') ? 'cancel' : state.userRequest.includes('글쎄') ? 'unclear' : 'confirm' }, confidences: { confirmation: 1 } };
     if (questions.intent || questions.menu1 || questions.line) {
-      answers = Object.fromEntries(Object.keys(questions).map(key => [key, key.startsWith('menu') ? 'none' : key.startsWith('quantity') || key.startsWith('temperature') || key.startsWith('shot') ? 'unspecified' : 'no']));
+      answers = Object.fromEntries(Object.keys(questions).map(key => [key, key.startsWith('menu') ? 'none' : key.startsWith('quantity') || key.startsWith('temperature') || key.startsWith('shot') || /^(ice|milk|sweetness|syrup|cream|pearl|drizzle|strength)\d+$/.test(key) ? 'unspecified' : 'no']));
       Object.assign(answers, { intent: 'add', mode: '포장', payment: 'unspecified', checkout: 'no', line: 'none', item_count: '1',
         menu1: String(menu.find(item => item.name === '아메리카노').id), temperature1: 'ICE', quantity1: '2', shot1: 'unspecified' });
-      if (state.userRequest.includes('수정')) Object.assign(answers, { intent: 'edit', line: 'line_0', quantity1: '1', mode: 'unspecified' });
+      Object.assign(answers, this.optionAnswers || {});
+      if (state.userRequest.includes('수정')) Object.assign(answers, { intent: 'edit', line: `line_${state.cart.findIndex(line => line.options?.syrup === 'vanilla') < 0 ? 0 : state.cart.findIndex(line => line.options?.syrup === 'vanilla')}`, quantity1: '1', mode: 'unspecified' });
       if (state.userRequest.includes('결제')) Object.assign(answers, { intent: 'checkout', payment: '카카오페이', checkout: 'yes', mode: 'unspecified' });
       if (state.userRequest.includes('삭제')) Object.assign(answers, { intent: 'remove', line: 'line_0', mode: 'unspecified' });
     } else {
@@ -32,7 +33,7 @@ class FixtureJev {
       else if (task?.includes('메뉴 검색창')) found = entries.find(([, value]) => value.startsWith('입력창 메뉴 검색'));
       else if (task?.includes('메뉴 카드를')) found = entries.find(([, value]) => value.startsWith('클릭: 아메리카노 ') && value.endsWith(' 선택'));
       else if (task?.includes('저장하세요')) found = entries.find(([, value]) => /^클릭: .*원(담기|수정)$/.test(value.replace(/\s+/g, '')) || /^클릭: .*원\s*(담기|수정)$/.test(value));
-      else if (task?.includes('옵션 변경')) found = entries.find(([, value]) => value === '클릭: 아메리카노 옵션 수정');
+      else if (task?.includes('옵션 변경')) found = entries.find(([ref, value]) => value === '클릭: 아메리카노 옵션 수정' && (!task.includes('바닐라 시럽') || state.controls.find(control => control.ref === ref)?.context.includes('바닐라 시럽')));
       else if (task?.includes('삭제하세요')) found = entries.find(([, value]) => value === '클릭: 아메리카노 삭제');
       if (!found) throw Error(`Fixture target missing: ${task}\n${JSON.stringify(entries)}`);
       answers = { action: found[0] };
@@ -47,14 +48,15 @@ function silentWav() {
   data.writeUInt32LE(16000, 28); data.writeUInt16LE(2, 32); data.writeUInt16LE(16, 34); data.write('data', 36); data.writeUInt32LE(1600, 40);
   return data.toString('base64');
 }
-async function setup(t, { speechConfigured = true, ttsFails = false } = {}) {
+async function setup(t, { speechConfigured = true, ttsFails = false, verifySteps = true } = {}) {
   const server = createServer(); await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const origin = `http://127.0.0.1:${server.address().port}`;
   const client = new FixtureJev();
   const spoken = [];
+  const speechOptions = [];
   const speech = { configured: speechConfigured, token: async () => ({ token: 'test-single-use-token' }),
-    synthesize: async text => { if (ttsFails && !text.includes('드시고 가시나요')) throw new Error('fixture provider failure'); spoken.push(text); return { audio: silentWav(), mime: 'audio/wav' }; } };
-  const service = createAgentApp({ origin, client, speech, headless: true, browserOptions: { launchOptions: {
+    synthesize: async (text, _signal, options) => { speechOptions.push(options); if (ttsFails && !text.includes('드시고 가시나요')) throw new Error('fixture provider failure'); spoken.push(text); return { audio: silentWav(), mime: 'audio/wav' }; } };
+  const service = createAgentApp({ origin, client, speech, headless: true, verifySteps, browserOptions: { launchOptions: {
     args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', '--autoplay-policy=no-user-gesture-required'],
   } } });
   const dist = fileURLToPath(new URL('../dist/', import.meta.url));
@@ -86,7 +88,7 @@ async function setup(t, { speechConfigured = true, ttsFails = false } = {}) {
     await page.waitForFunction(() => ['listening', 'idle', 'error'].includes(document.querySelector('.voice-dock')?.dataset.phase), null, { timeout: 40000 });
     return { previous, phase: await page.locator('.voice-dock').getAttribute('data-phase') };
   };
-  return { ...service, origin, page, call, client, say, spoken, sockets, chunks };
+  return { ...service, origin, page, call, client, say, spoken, speechOptions, sockets, chunks };
 }
 
 test('one kiosk: microphone → STT → JEV clicks → TTS → spoken payment confirmation', { timeout: 90000 }, async t => {
@@ -97,6 +99,7 @@ test('one kiosk: microphone → STT → JEV clicks → TTS → spoken payment co
   assert.equal(await page.getByRole('textbox').count(), 0);
   await page.getByRole('button', { name: '음성 주문 시작' }).click();
   await page.locator('.voice-dock[data-phase="listening"]').waitFor({ timeout: 10000 }).catch(async error => { console.log(await page.locator('.voice-dock').innerText(), 'sockets', sockets.length); throw error; });
+  assert.match(await page.locator('.voice-message').innerText(), /드시고 가시나요/);
   await delay(500); // Let the fake microphone send audio through the real SDK.
   assert.equal((await say('아이스 아메리카노 두 잔 포장')).phase, 'listening', JSON.stringify(state()));
   assert.equal((await browser.snapshot()).cart[0].quantity, 2);
@@ -113,7 +116,8 @@ test('one kiosk: microphone → STT → JEV clicks → TTS → spoken payment co
   assert.equal((await browser.snapshot()).orderNumber, '101');
   assert.equal(browser.context.pages().length, 1);
   assert.ok(await page.evaluate(() => window.__testMediaTracks.every(track => track.readyState === 'ended')));
-  assert.equal(spoken.length, 6); assert.equal(sockets.length, 5);
+  assert.ok(spoken.includes(ACK), 'multi-step orders are acknowledged before the result');
+  assert.equal(spoken.filter(text => text !== ACK).length, 6); assert.equal(sockets.length, 5);
   assert.equal(spoken[0], '드시고 가시나요? 아니면 포장하시나요?');
   assert.ok(spoken.some(text => text.includes('두 잔'))); assert.ok(chunks.length > 0);
   assert.deepEqual(errors, []);
@@ -251,4 +255,187 @@ test('points opt-in collects and confirms a phone number before payment, with no
   assert.ok(!JSON.stringify(state()).includes(number));
   assert.ok(!JSON.stringify(state()).includes(corrected));
   assert.equal(await browser.page.locator('.order-number').count(), 0);
+});
+
+test('touch options keep variants separate, reprice edits, and survive mobile checkout', async t => {
+  const { page, browser } = await setup(t);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole('button', { name: '포장', exact: true }).click();
+  await page.getByRole('button', { name: '카페라떼 3,000원 선택', exact: true }).click();
+  await page.getByRole('button', { name: '오트밀크 +600원', exact: true }).click();
+  await page.getByRole('button', { name: '바닐라 시럽 +500원', exact: true }).click();
+  await page.getByRole('button', { name: '얼음 적게', exact: true }).click();
+  await page.getByRole('button', { name: '선택 수량 늘리기', exact: true }).click();
+  await page.getByRole('button', { name: '8,200원 담기', exact: true }).click();
+  await page.getByRole('button', { name: '카페라떼 3,000원 선택', exact: true }).click();
+  await page.getByRole('button', { name: '3,000원 담기', exact: true }).click();
+  let cart = (await browser.snapshot()).cart;
+  assert.equal(cart.length, 2);
+  assert.deepEqual(cart[0].options, { ice: 'less', milk: 'oat', syrup: 'vanilla' });
+  assert.equal(cart[0].price, 4100);
+  await page.locator('.cart-line').first().getByRole('button', { name: '카페라떼 옵션 수정' }).click();
+  await page.getByRole('button', { name: 'HOT 따뜻하게', exact: true }).click();
+  assert.equal(await page.getByRole('button', { name: '얼음 적게', exact: true }).count(), 0);
+  assert.equal(await page.getByRole('button', { name: '오트밀크 +600원', exact: true }).getAttribute('aria-pressed'), 'true');
+  await page.getByRole('button', { name: '시럽 추가 안 함', exact: true }).click();
+  await page.getByRole('button', { name: '7,200원 수정', exact: true }).click();
+  cart = (await browser.snapshot()).cart;
+  assert.deepEqual(cart.find(line => line.temperature === 'HOT').options, { milk: 'oat' });
+  assert.equal(cart.reduce((sum, line) => sum + line.price * line.quantity, 0), 10200);
+  await page.getByRole('button', { name: '주문하기', exact: true }).click();
+  assert.match(await page.locator('.review-list').innerText(), /오트밀크/);
+  await page.getByRole('button', { name: '결제하기', exact: true }).click();
+  await page.getByRole('button', { name: '건너뛰기', exact: true }).click();
+  await page.getByRole('button', { name: '카드', exact: true }).click();
+  await page.getByRole('button', { name: '카드 모의 결제', exact: true }).click();
+  assert.match((await browser.snapshot()).receipt, /10,200원/);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+});
+
+test('voice applies extra options and edits the correct variant without losing unmentioned options', async t => {
+  const { call, client, browser } = await setup(t);
+  client.optionAnswers = { syrup1: 'vanilla', ice1: 'less' };
+  let result = await call('utterance', { text: '아이스 아메리카노 두 잔 포장 바닐라 시럽 얼음 적게' });
+  assert.equal(result.error, undefined, result.error);
+  let cart = (await browser.snapshot()).cart;
+  assert.deepEqual(cart[0].options, { ice: 'less', syrup: 'vanilla' });
+  assert.equal(cart[0].price, 2500);
+  client.optionAnswers = {};
+  await call('utterance', { text: '아이스 아메리카노 두 잔 포장' });
+  assert.equal((await browser.snapshot()).cart.length, 2);
+  result = await call('utterance', { text: '바닐라 시럽 아메리카노 하나로 수정' });
+  assert.equal(result.error, undefined, result.error);
+  cart = (await browser.snapshot()).cart;
+  assert.equal(cart.find(line => line.options.syrup).quantity, 1);
+  assert.equal(cart.find(line => !line.options.syrup).quantity, 2);
+  client.optionAnswers = { syrup1: 'normal', ice1: 'normal' };
+  result = await call('utterance', { text: '바닐라 시럽 빼고 기본 얼음으로 수정' });
+  assert.equal(result.error, undefined, result.error);
+  cart = (await browser.snapshot()).cart;
+  assert.equal(cart.length, 1);
+  assert.equal(cart[0].quantity, 3);
+  assert.equal(cart[0].price, 2000);
+});
+
+test('QA: small portrait screens leave usable space for browsing and checkout', async t => {
+  const { page } = await setup(t);
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.getByRole('button', { name: '포장', exact: true }).click();
+  const grid = await page.locator('.product-grid').boundingBox();
+  assert.ok(grid.height >= 140, `catalog height is only ${grid.height}px`);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  const checkout = await page.getByRole('button', { name: '주문하기', exact: true }).boundingBox();
+  const dock = await page.locator('.voice-dock').boundingBox();
+  assert.ok(checkout.y + checkout.height <= dock.y);
+});
+
+test('QA: long option dialogs keep their close control available after scrolling', async t => {
+  const { page } = await setup(t);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole('button', { name: '포장', exact: true }).click();
+  await page.getByRole('button', { name: '카페라떼 3,000원 선택', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.locator('.primary').scrollIntoViewIfNeeded();
+  const close = await dialog.getByRole('button', { name: '닫기', exact: true }).boundingBox();
+  const bounds = await dialog.boundingBox();
+  assert.ok(close.y >= bounds.y && close.y + close.height <= bounds.y + bounds.height, `close control left dialog: ${JSON.stringify(close)}`);
+});
+
+test('QA: exceeding the cart limit displays an error inside the active option dialog', async t => {
+  const { page, browser } = await setup(t);
+  await page.getByRole('button', { name: '포장', exact: true }).click();
+  await page.getByRole('button', { name: '아메리카노 2,000원 선택', exact: true }).click();
+  await page.getByRole('button', { name: '2,000원 담기', exact: true }).click();
+  await page.getByRole('button', { name: '아메리카노 2,000원 선택', exact: true }).click();
+  const increment = page.getByRole('button', { name: '선택 수량 늘리기', exact: true });
+  for (let n = 1; n < 99; n++) await increment.click();
+  await page.getByRole('button', { name: '198,000원 담기', exact: true }).click();
+  const error = page.getByRole('dialog').getByRole('alert');
+  assert.equal(await error.count(), 1, 'the visible dialog must explain the rejected add');
+  assert.match(await error.innerText(), /99/);
+  assert.equal((await browser.snapshot()).cart[0].quantity, 1);
+});
+
+
+test('a new customer on the start screen never inherits a previous pending question or prompt', async t => {
+  const { call, runner } = await setup(t);
+  runner.clarification = { request: '녹차라떼', question: '녹차라떼는 아이스로 할까요, 따뜻하게 할까요?' };
+  runner.points = { method: '카드', stage: 'choice' };
+  const greeting = await call('begin');
+  assert.equal(greeting.message, '드시고 가시나요? 아니면 포장하시나요?');
+  assert.equal(runner.clarification, null);
+  assert.equal(runner.points, null);
+});
+
+test('an abandoned order returns to the start screen; a finished receipt returns automatically', { timeout: 30000 }, async t => {
+  const { call, page, browser } = await setup(t);
+  await page.evaluate(() => { window.kioskIdleMs = 1500; window.kioskCompleteMs = 1500; });
+  const result = await call('utterance', { text: '아이스 아메리카노 두 잔 포장' });
+  assert.equal(result.error, undefined, result.error);
+  assert.equal((await browser.snapshot()).cart.length, 1);
+  await page.locator('.start-screen').waitFor({ timeout: 5000 });
+  assert.deepEqual((await browser.snapshot()).cart, []);
+  await page.evaluate(() => { window.kioskIdleMs = 600000; });
+  await call('utterance', { text: '아이스 아메리카노 두 잔 포장' });
+  assert.ok(!(await call('utterance', { text: '카카오페이 결제' })).error);
+  assert.ok(!(await call('utterance', { text: '건너뛰기' })).error);
+  assert.ok(!(await call('utterance', { text: '네 진행해 주세요' })).error);
+  assert.equal((await browser.snapshot()).screen, '주문 완료');
+  await page.locator('.start-screen').waitFor({ timeout: 5000 });
+});
+
+test('large quantities need one JEV decision for the stepper, and metrics record latency without utterance text', { timeout: 30000 }, async t => {
+  const { call, client, browser, state } = await setup(t);
+  const tasks = [];
+  const decide = client.decide.bind(client);
+  client.decide = (input, ...rest) => { tasks.push(input.task); return decide(input, ...rest); };
+  client.optionAnswers = { quantity1: '12' };
+  const result = await call('utterance', { text: '아이스 아메리카노 열두 잔 포장' });
+  assert.equal(result.error, undefined, result.error);
+  assert.equal((await browser.snapshot()).cart[0].quantity, 12);
+  assert.equal(tasks.filter(task => task?.includes('수량 늘리기')).length, 1, 'stepper presses after the first must not call JEV again');
+  const { metrics, history } = state();
+  assert.equal(metrics.utterances, 1);
+  assert.equal(metrics.outcomes.done, 1);
+  assert.ok(metrics.p95Ms > 0 && metrics.avgDecisions === tasks.length);
+  assert.equal(history.at(-1).decisions, tasks.length);
+  assert.ok(!JSON.stringify(metrics).includes('아메리카노'));
+});
+
+test('JEV_VERIFY_STEPS=false skips per-click confirmation but still verifies the cart; only the fixed acknowledgement is speakable', { timeout: 30000 }, async t => {
+  const { call, client, browser, state } = await setup(t, { verifySteps: false });
+  const tasks = [];
+  const decide = client.decide.bind(client);
+  client.decide = (input, ...rest) => { tasks.push(input.task ?? 'plan'); return decide(input, ...rest); };
+  const result = await call('utterance', { text: '아이스 아메리카노 두 잔 포장' });
+  assert.equal(result.error, undefined, result.error);
+  assert.equal((await browser.snapshot()).cart[0].quantity, 2);
+  assert.ok(tasks.every(task => task === 'plan' || task === 'add'), `only planning decisions expected: ${tasks}`);
+  assert.equal(state().metrics.avgDecisions, tasks.length);
+  assert.ok(!(await call('speak', { text: ACK })).error);
+  assert.equal((await call('speak', { text: '임의 문장' })).code, 'SPEECH_INPUT');
+});
+
+test('sold-out menus are disabled for touch and declined by voice without changing the cart', { timeout: 30000 }, async t => {
+  const { soldOut } = await import('../server/planner.js');
+  soldOut.add('아메리카노');
+  t.after(() => soldOut.delete('아메리카노'));
+  const { call, page, browser } = await setup(t);
+  const result = await call('utterance', { text: '아이스 아메리카노 두 잔 포장' });
+  assert.match(result.message, /품절/);
+  assert.deepEqual((await browser.snapshot()).cart, []);
+  await page.getByRole('button', { name: '포장', exact: true }).click();
+  await page.getByRole('button', { name: '아메리카노 품절', exact: true }).waitFor();
+  assert.ok(await page.getByRole('button', { name: '아메리카노 품절', exact: true }).isDisabled());
+});
+
+test('the slow-speech toggle applies to spoken guidance and stays out of kiosk automation', { timeout: 30000 }, async t => {
+  const { page, speechOptions, browser } = await setup(t);
+  const toggle = page.locator('.voice-speed');
+  await toggle.click();
+  assert.equal(await toggle.getAttribute('aria-pressed'), 'true');
+  await page.getByRole('button', { name: '음성 주문 시작' }).click();
+  await page.locator('.voice-dock[data-phase="listening"]').waitFor();
+  assert.deepEqual(speechOptions.at(-1), { slow: true });
+  assert.ok(!(await browser.snapshot()).controls.some(control => control.name.includes('천천히')));
 });
