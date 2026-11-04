@@ -1,4 +1,8 @@
-import { Scribe, RealtimeEvents, CommitStrategy, AudioFormat } from '@elevenlabs/client';
+// The STT SDK is large; load it only when a voice session starts so touch ordering
+// does not pay for it on first paint.
+let sdk;
+const loadSdk = () => (sdk ??= import('@elevenlabs/client').catch(error => { sdk = undefined; throw error; }));
+export const preloadSpeech = () => { loadSdk().catch(() => {}); };
 
 // Own microphone resources explicitly: stopping must also work during async setup.
 export async function listen({ token, signal, onReady, onPartial, onFinal, onError }) {
@@ -28,6 +32,8 @@ export async function listen({ token, signal, onReady, onPartial, onFinal, onErr
     if (closed) return close;
     source = context.createMediaStreamSource(stream);
     processor = new AudioWorkletNode(context, 'kiosk-pcm');
+    const { Scribe, RealtimeEvents, CommitStrategy, AudioFormat } = await loadSdk();
+    if (closed) return close;
     connection = Scribe.connect({ token, modelId: 'scribe_v2_realtime', languageCode: 'ko', commitStrategy: CommitStrategy.VAD,
       vadSilenceThresholdSecs: 1.5, audioFormat: AudioFormat.PCM_16000, sampleRate: 16000 });
     connection.on(RealtimeEvents.OPEN, () => { socketReady = true; });
