@@ -3,6 +3,9 @@ import { readFileSync } from 'node:fs';
 import { AgentError, choice } from './jev.js';
 
 export const menu = JSON.parse(readFileSync(new URL('../src/menu.json', import.meta.url), 'utf8'));
+// Runtime sold-out menu names, e.g. SOLD_OUT=딸기라떼,녹차라떼 (restart to apply). The UI reads the
+// same list from /api/menu-status, so touch and voice ordering agree. Unknown names are ignored.
+export const soldOut = new Set((process.env.SOLD_OUT || '').split(',').map(name => name.trim()).filter(name => menu.some(item => item.name === name)));
 export const paymentNames = ['카드', '페이코', '삼성페이', '카카오페이', '네이버페이', '제로페이'];
 const ask = message => Object.assign(new AgentError(message, 'CLARIFY'), { awaitsAnswer: true });
 const named = values => Object.fromEntries(values.map(value => [value, value]));
@@ -91,6 +94,7 @@ export async function planCommand(client, text, snapshot, signal) {
     for (let i = 1; i <= itemCount; i++) {
       const product = a.intent === 'edit' ? menu.find(item => item.name === plan.line.name) : menu.find(item => String(item.id) === a[`menu${i}`]);
       if (!product) throw new AgentError('정확한 메뉴명을 말씀해 주세요. 예: 카페라떼, 바닐라라떼.', 'CLARIFY');
+      if (a.intent === 'add' && soldOut.has(product.name)) throw new AgentError(`죄송합니다. ${product.name}는 지금 품절입니다. 다른 메뉴를 말씀해 주세요.`, 'MENU_INFO');
       const rawTemp = a[`temperature${i}`];
       const temperature = rawTemp === 'unspecified' ? plan.line?.temperature || (product.temperatures.length === 1 ? product.temperatures[0] : null) : rawTemp;
       if (!temperature) throw ask(`${product.name}는 아이스로 할까요, 따뜻하게 할까요?`);

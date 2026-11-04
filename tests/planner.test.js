@@ -83,3 +83,14 @@ test('voice rejects unavailable options and uncertain option choices before exec
   await assert.rejects(planCommand(fixture({ syrup1: 'unsupported' }), '아메리카노 알 수 없는 시럽', snapshot), /시럽 추가/);
   await assert.rejects(planCommand(fixture({ syrup1: 'vanilla' }, { syrup1: .1 }), '아메리카노 바닐라 시럽', snapshot), { code: 'UNCERTAIN' });
 });
+
+test('sold-out drinks are answered before any UI step, without keeping a pending question', async () => {
+  const { soldOut } = await import('../server/planner.js');
+  soldOut.add('아메리카노');
+  try {
+    await assert.rejects(planCommand(fixture(), '아이스 아메리카노 두 잔 포장', snapshot), error => error.code === 'MENU_INFO' && error.message.includes('품절') && !error.awaitsAnswer);
+    const edit = await planCommand(fixture({ intent: 'edit', line: 'line_0', quantity1: '1', mode: 'unspecified' }), '아메리카노 한 잔으로 바꿔줘',
+      { ...snapshot, mode: '포장', cart: [{ name: '아메리카노', temperature: 'ICE', quantity: 2, shot: false, options: {}, price: 2000 }] });
+    assert.equal(edit.items[0].quantity, 1, 'lines already in the cart can still be edited');
+  } finally { soldOut.delete('아메리카노'); }
+});

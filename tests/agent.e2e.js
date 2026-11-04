@@ -414,3 +414,16 @@ test('JEV_VERIFY_STEPS=false skips per-click confirmation but still verifies the
   assert.ok(!(await call('speak', { text: ACK })).error);
   assert.equal((await call('speak', { text: '임의 문장' })).code, 'SPEECH_INPUT');
 });
+
+test('sold-out menus are disabled for touch and declined by voice without changing the cart', { timeout: 30000 }, async t => {
+  const { soldOut } = await import('../server/planner.js');
+  soldOut.add('아메리카노');
+  t.after(() => soldOut.delete('아메리카노'));
+  const { call, page, browser } = await setup(t);
+  const result = await call('utterance', { text: '아이스 아메리카노 두 잔 포장' });
+  assert.match(result.message, /품절/);
+  assert.deepEqual((await browser.snapshot()).cart, []);
+  await page.getByRole('button', { name: '포장', exact: true }).click();
+  await page.getByRole('button', { name: '아메리카노 품절', exact: true }).waitFor();
+  assert.ok(await page.getByRole('button', { name: '아메리카노 품절', exact: true }).isDisabled());
+});

@@ -3,6 +3,7 @@ import { JevClient, AgentError, choice } from './jev.js';
 import { KioskBrowser } from './browser.js';
 import { OrderRunner } from './runner.js';
 import { ElevenSpeech } from './speech.js';
+import { soldOut } from './planner.js';
 
 // Spoken while a long request is still running, so users hear a response quickly.
 export const ACK = '네, 확인하고 있어요.';
@@ -31,6 +32,7 @@ export function createAgentApp({ origin, client = new JevClient(), speech = new 
     res.set('Cache-Control', 'no-store'); next();
   });
   app.get('/api/status', (_req, res) => res.json(state()));
+  app.get('/api/menu-status', (_req, res) => res.json({ soldOut: [...soldOut] }));
   // The old chat, command endpoints, preview, and browser-launch controls are removed.
   app.all('/api/{*path}', (_req, res) => res.status(404).json({ error: '지원하지 않는 API입니다.' }));
   app.get('/control', (_req, res) => res.redirect('/'));

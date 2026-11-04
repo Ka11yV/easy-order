@@ -67,6 +67,7 @@ function App() {
   const [phone, setPhone] = useState('');
   const [orderNumber, setOrderNumber] = useState(101);
   const [notice, setNotice] = useState('');
+  const [soldOut, setSoldOut] = useState(() => new Set());
   const grid = useRef(null);
   const filtered = products.filter(item => (category === '전체' || item.category === category));
   const count = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -79,6 +80,11 @@ function App() {
   }, [dialog]);
 
   useEffect(() => { grid.current?.scrollTo(0, 0); }, [category]);
+  // Refresh the sold-out list for each customer. Without the agent server (pnpm dev) nothing is sold out.
+  useEffect(() => {
+    fetch('/api/menu-status').then(response => response.ok ? response.json() : null)
+      .then(data => { if (Array.isArray(data?.soldOut)) setSoldOut(new Set(data.soldOut)); }).catch(() => {});
+  }, [mode]);
   useEffect(() => { setOptionError(''); }, [temperature, shot, options]);
   useEffect(() => {
     if (!notice) return;
@@ -166,8 +172,8 @@ function App() {
           <h2>{category === '전체' ? '전체 메뉴' : category} <span>{filtered.length}</span></h2><span className={notice ? 'catalog-notice' : ''} role="status" aria-live="polite">{notice || '원하는 메뉴를 선택해 주세요'}</span>
         </div>
         <div className="product-grid" ref={grid}>
-          {filtered.map(item => <button className="product" key={item.id} onClick={() => select(item)} aria-label={`${item.name} ${won(item.price)} 선택`}>
-            <div className="product-photo"><img src={item.image} alt={item.name} draggable="false" /></div>
+          {filtered.map(item => <button className="product" key={item.id} disabled={soldOut.has(item.name)} onClick={() => select(item)} aria-label={soldOut.has(item.name) ? `${item.name} 품절` : `${item.name} ${won(item.price)} 선택`}>
+            <div className="product-photo"><img src={item.image} alt={item.name} draggable="false" />{soldOut.has(item.name) && <span className="sold-out-badge">품절</span>}</div>
             <h2>{item.name}</h2><strong className="product-price">{won(item.price)}</strong>
           </button>)}
           {!filtered.length && <div className="no-results"><p>메뉴가 없습니다.</p><button onClick={() => { setCategory('전체'); }}>전체 메뉴</button></div>}
