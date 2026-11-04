@@ -353,3 +353,14 @@ test('QA: exceeding the cart limit displays an error inside the active option di
   assert.match(await error.innerText(), /99/);
   assert.equal((await browser.snapshot()).cart[0].quantity, 1);
 });
+
+
+test('a new customer on the start screen never inherits a previous pending question or prompt', async t => {
+  const { call, runner } = await setup(t);
+  runner.clarification = { request: '녹차라떼', question: '녹차라떼는 아이스로 할까요, 따뜻하게 할까요?' };
+  runner.points = { method: '카드', stage: 'choice' };
+  const greeting = await call('begin');
+  assert.equal(greeting.message, '드시고 가시나요? 아니면 포장하시나요?');
+  assert.equal(runner.clarification, null);
+  assert.equal(runner.points, null);
+});

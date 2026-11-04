@@ -75,6 +75,9 @@ export function createAgentApp({ origin, client = new JevClient(), speech = new 
       if (operation === 'begin') {
         if (active) throw new AgentError('주문을 처리하고 있습니다.', 'BUSY');
         const snapshot = await browser.snapshot();
+        // The start screen means a new customer: never carry over a previous customer's
+        // pending question, points prompt, or payment confirmation.
+        if (snapshot.screen === '매장 또는 포장 선택') { runner.pending = null; runner.clarification = null; runner.points = null; }
         lastResult = snapshot.screen === '매장 또는 포장 선택' ? '드시고 가시나요? 아니면 포장하시나요?' : runner.points ? '번호 적립을 진행하시겠어요?' : null;
         return { message: lastResult };
       }
