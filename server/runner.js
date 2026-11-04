@@ -30,6 +30,23 @@ export class OrderRunner {
   }
   button(name, scope = this.browser.page) { return scope.getByRole('button', { name, exact: true }); }
   async click(name, signal, scope) { await this.step(`"${name}" 버튼을 누르세요.`, this.button(name, scope), signal); }
+  // JEV approves the first press of a stepper button. Identical follow-up presses are repeated
+  // without another decision round-trip (N cups used to cost N JEV calls), but each press still
+  // goes through the fingerprinted executor and the caller verifies the final state.
+  async repeat(name, times, signal) {
+    if (times < 1) return;
+    await this.click(name, signal);
+    for (let i = 1; i < times; i++) {
+      signal.throwIfAborted();
+      if (++this.actions > 80) throw new AgentError('작업 단계 제한에 도달했습니다. 현재 주문을 확인해 주세요.', 'LIMIT');
+      const snapshot = await this.browser.snapshot();
+      const locator = this.button(name);
+      const ref = await locator.getAttribute('data-easy-ref');
+      if (!ref || await locator.count() !== 1) throw new AgentError('조작할 대상을 명확하게 찾지 못했습니다.', 'TARGET');
+      await this.browser.execute({ ref, type: 'click' }, snapshot, signal);
+    }
+    this.log(`"${name}" 버튼을 ${times}회 눌렀습니다.`, { phase: 'executed', target: name });
+  }
   async closeDialog(signal) {
     const snap = await this.browser.snapshot();
     if (!['메뉴 선택', '매장 또는 포장 선택', '주문 완료'].includes(snap.screen)) await this.click('닫기', signal);
@@ -60,11 +77,9 @@ export class OrderRunner {
         await this.click(optionButtonLabel(group.values.find(value => value.id === wanted)), signal);
       }
     }
-    for (let tries = 0; tries < 99; tries++) {
-      snap = await this.browser.snapshot();
-      if (snap.option.quantity === item.quantity) break;
-      await this.click(snap.option.quantity < item.quantity ? '선택 수량 늘리기' : '선택 수량 줄이기', signal);
-    }
+    snap = await this.browser.snapshot();
+    const difference = item.quantity - snap.option.quantity;
+    await this.repeat(difference > 0 ? '선택 수량 늘리기' : '선택 수량 줄이기', Math.abs(difference), signal);
     snap = await this.browser.snapshot();
     if (snap.option.quantity !== item.quantity || snap.option.temperature !== item.temperature || snap.option.shot !== item.shot || optionsKey(snap.option.options) !== optionsKey(item.options)) throw new AgentError('메뉴 옵션이 일치하지 않습니다.', 'VERIFY');
     const save = page.locator('dialog[open] .options-content .primary');

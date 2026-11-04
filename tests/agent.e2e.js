@@ -381,3 +381,21 @@ test('an abandoned order returns to the start screen; a finished receipt returns
   assert.equal((await browser.snapshot()).screen, '주문 완료');
   await page.locator('.start-screen').waitFor({ timeout: 5000 });
 });
+
+test('large quantities need one JEV decision for the stepper, and metrics record latency without utterance text', { timeout: 30000 }, async t => {
+  const { call, client, browser, state } = await setup(t);
+  const tasks = [];
+  const decide = client.decide.bind(client);
+  client.decide = (input, ...rest) => { tasks.push(input.task); return decide(input, ...rest); };
+  client.optionAnswers = { quantity1: '12' };
+  const result = await call('utterance', { text: '아이스 아메리카노 열두 잔 포장' });
+  assert.equal(result.error, undefined, result.error);
+  assert.equal((await browser.snapshot()).cart[0].quantity, 12);
+  assert.equal(tasks.filter(task => task?.includes('수량 늘리기')).length, 1, 'stepper presses after the first must not call JEV again');
+  const { metrics, history } = state();
+  assert.equal(metrics.utterances, 1);
+  assert.equal(metrics.outcomes.done, 1);
+  assert.ok(metrics.p95Ms > 0 && metrics.avgDecisions === tasks.length);
+  assert.equal(history.at(-1).decisions, tasks.length);
+  assert.ok(!JSON.stringify(metrics).includes('아메리카노'));
+});
